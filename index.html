@@ -1,535 +1,442 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>عبد الرزاق العنيف 🔥</title>
-  <style>
-    /* ==========================================================================
-       SECTION 1: GLOBAL RESET, ROOT VARIABLES & CORE THEMING
-       ========================================================================== */
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>عبد الرزاق العنيف 🔥</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
 
-    :root {
-      --primary-bg-start: #1c1815;
-      --primary-bg-end: #0a0807;
-      --card-bg-start: #1e1916;
-      --card-bg-end: #120e0d;
-      --gold-primary: #d4af37;
-      --gold-light: #ffe082;
-      --gold-dark: #aa771c;
-      --gold-shadow: rgba(212, 175, 55, 0.25);
-      --text-main: #f3e5ab;
-      --text-muted: #b3a286;
-      --border-color: rgba(212, 175, 55, 0.35);
-      --vinyl-black: #111111;
-      --vinyl-groove: #1a1a1a;
-      --player-wood-start: #2c211a;
-      --player-wood-end: #140d0a;
-      --fire-orange: #ff5722;
-      --fire-red: #d32f2f;
-      --glow-intensity: 0 0 20px rgba(212, 175, 55, 0.3);
-    }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+}
 
-    /* ==========================================================================
-       SECTION 2: CANVAS & BACKGROUND ENVIRONMENT
-       ========================================================================== */
-    html, body {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: radial-gradient(circle at center, var(--primary-bg-start) 0%, var(--primary-bg-end) 100%);
-      color: var(--text-main);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-    }
+body {
+    font-family: 'Cairo', sans-serif;
+    background: #0a0a0a;
+    color: #fff;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+}
 
-    #particleCanvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1;
-      pointer-events: none;
-    }
+/* ========== الواجهة الأولى ========== */
+#screen1 {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at center, #1a0000 0%, #000 70%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
 
-    /* ==========================================================================
-       SECTION 3: LAYOUT CONTAINERS & CARD UI
-       ========================================================================== */
-    .app-wrapper {
-      position: relative;
-      z-index: 10;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
+#screen1.hidden {
+    opacity: 0;
+    transform: scale(1.2);
+    pointer-events: none;
+}
 
-    .app-card {
-      position: relative;
-      width: 100%;
-      max-width: 420px;
-      padding: 35px 25px;
-      background: linear-gradient(145deg, var(--card-bg-start), var(--card-bg-end));
-      border-radius: 28px;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95), var(--glow-intensity);
-      border: 1.5px solid var(--border-color);
-      backdrop-filter: blur(12px);
-      text-align: center;
-      transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s ease;
-      animation: cardEntrance 0.8s ease-out forwards;
-    }
+.title1 {
+    font-size: clamp(2.8rem, 8vw, 5.5rem);
+    font-weight: 900;
+    text-align: center;
+    background: linear-gradient(90deg, #ff0000, #ff6600, #ff0000);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 30px rgba(255, 0, 0, 0.8);
+    animation: pulseFire 1.8s infinite alternate;
+    margin-bottom: 50px;
+    letter-spacing: 2px;
+}
 
-    @keyframes cardEntrance {
-      0% { opacity: 0; transform: translateY(30px) scale(0.95); }
-      100% { opacity: 1; transform: translateY(0) scale(1); }
-    }
+@keyframes pulseFire {
+    0% { transform: scale(1); filter: brightness(1); }
+    100% { transform: scale(1.05); filter: brightness(1.3); }
+}
 
-    /* ==========================================================================
-       SECTION 4: HEADERS & TYPOGRAPHY
-       ========================================================================== */
-    .title-primary {
-      font-size: 2.1rem;
-      font-weight: 900;
-      background: linear-gradient(45deg, var(--gold-light), var(--gold-primary), var(--fire-orange));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 15px;
-      letter-spacing: 0.8px;
-      text-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
-      line-height: 1.3;
-    }
+.btn {
+    position: relative;
+    padding: 18px 55px;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(135deg, #ff2200, #990000);
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 0 25px rgba(255, 30, 0, 0.7),
+                inset 0 0 15px rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    z-index: 2;
+}
 
-    .title-secondary {
-      font-size: 2.2rem;
-      font-weight: 900;
-      background: linear-gradient(45deg, var(--gold-light), var(--fire-orange), var(--fire-red));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 20px;
-      letter-spacing: 0.5px;
-      line-height: 1.3;
-      text-shadow: 0 4px 20px rgba(255, 87, 34, 0.4);
-    }
+.btn:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 40px rgba(255, 50, 0, 1),
+                inset 0 0 20px rgba(255, 255, 255, 0.3);
+}
 
-    .sub-caption {
-      font-size: 0.95rem;
-      color: var(--text-muted);
-      margin-bottom: 25px;
-      line-height: 1.6;
-    }
+.btn:active {
+    transform: scale(0.95);
+}
 
-    /* ==========================================================================
-       SECTION 5: MEDIA & IMAGE FRAME WORK
-       ========================================================================== */
-    .media-frame {
-      position: relative;
-      width: 100%;
-      height: 250px;
-      border-radius: 20px;
-      overflow: hidden;
-      margin-bottom: 25px;
-      border: 2px solid var(--gold-primary);
-      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.85), 0 0 20px rgba(212, 175, 55, 0.25);
-    }
+.btn::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+    transform: rotate(45deg);
+    animation: shine 3s infinite;
+}
 
-    .media-frame img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      transition: transform 0.6s ease;
-    }
+@keyframes shine {
+    0% { transform: translateX(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) rotate(45deg); }
+}
 
-    .media-frame:hover img {
-      transform: scale(1.05);
-    }
+/* ========== الواجهة الثانية ========== */
+#screen2 {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, #1a0505 0%, #050000 80%);
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 5;
+    opacity: 0;
+    transition: opacity 1s ease;
+}
 
-    /* ==========================================================================
-       SECTION 6: REALISTIC 3D VINYL PLAYER & MECHANICS
-       ========================================================================== */
-    .player-container {
-      position: relative;
-      width: 270px;
-      height: 270px;
-      margin: 20px auto;
-      background: linear-gradient(145deg, var(--player-wood-start), var(--player-wood-end));
-      border-radius: 24px;
-      padding: 18px;
-      border: 2px solid var(--gold-dark);
-      box-shadow: inset 0 0 25px #000000, 0 15px 40px rgba(0, 0, 0, 0.9);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+#screen2.active {
+    display: flex;
+    opacity: 1;
+}
 
-    .vinyl-disc {
-      width: 220px;
-      height: 220px;
-      border-radius: 50%;
-      background: 
-        radial-gradient(circle at center, transparent 28%, rgba(255, 255, 255, 0.05) 29%, rgba(0,0,0,0.9) 100%),
-        repeating-radial-gradient(
-          circle at center,
-          var(--vinyl-black) 0px,
-          var(--vinyl-black) 2px,
-          var(--vinyl-groove) 3px,
-          var(--vinyl-black) 4px
-        );
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.95), inset 0 0 3px rgba(255, 255, 255, 0.3);
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      transition: transform 0.5s ease;
-    }
+.title2 {
+    font-size: clamp(2.2rem, 7vw, 4.2rem);
+    font-weight: 900;
+    text-align: center;
+    color: #ff3366;
+    text-shadow: 0 0 20px #ff0044, 0 0 40px #ff0066;
+    margin-bottom: 40px;
+    animation: glowPulse 2s infinite alternate;
+}
 
-    .vinyl-disc::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      border-radius: 50%;
-      background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 42%, rgba(255,255,255,0.08) 100%);
-      pointer-events: none;
-    }
+@keyframes glowPulse {
+    from { text-shadow: 0 0 15px #ff0044, 0 0 30px #ff0066; }
+    to { text-shadow: 0 0 30px #ff0044, 0 0 60px #ff0066, 0 0 80px #ff0088; }
+}
 
-    .vinyl-label {
-      width: 85px;
-      height: 85px;
-      background: radial-gradient(circle, #3a2b1a 0%, #150f0a 100%);
-      border-radius: 50%;
-      border: 2px solid var(--gold-primary);
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      box-shadow: inset 0 0 12px rgba(212, 175, 55, 0.6);
-    }
+/* الأسطوانة */
+.cylinder-container {
+    perspective: 1000px;
+    margin: 20px 0 50px;
+    position: relative;
+}
 
-    .vinyl-label::after {
-      content: 'عبد الرزاق\aالشيخ';
-      white-space: pre;
-      font-size: 11px;
-      font-weight: 900;
-      color: var(--gold-light);
-      line-height: 1.25;
-      text-shadow: 0 1px 3px #000;
-    }
+.cylinder {
+    width: 180px;
+    height: 280px;
+    position: relative;
+    transform-style: preserve-3d;
+    animation: spinCylinder 8s linear infinite;
+}
 
-    .center-spindle {
-      position: absolute;
-      width: 12px;
-      height: 12px;
-      background: radial-gradient(circle, #ffffff, #777777);
-      border-radius: 50%;
-      z-index: 5;
-      box-shadow: 0 0 6px #000;
-    }
+@keyframes spinCylinder {
+    from { transform: rotateY(0deg); }
+    to { transform: rotateY(360deg); }
+}
 
-    .tone-arm-system {
-      position: absolute;
-      top: 15px;
-      right: 22px;
-      width: 68px;
-      height: 100px;
-      border-right: 5px solid var(--gold-primary);
-      border-top: 5px solid var(--gold-primary);
-      border-radius: 0 24px 0 0;
-      transform-origin: top right;
-      transform: rotate(-32deg);
-      transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-      pointer-events: none;
-      z-index: 10;
-      filter: drop-shadow(-4px 6px 10px rgba(0,0,0,0.85));
-    }
+.cylinder-face {
+    position: absolute;
+    width: 180px;
+    height: 280px;
+    background: linear-gradient(to bottom, #330000, #110000);
+    border: 3px solid #ff2200;
+    box-shadow: inset 0 0 40px rgba(255, 0, 0, 0.4);
+}
 
-    .tone-arm-system::after {
-      content: '';
-      position: absolute;
-      bottom: -10px;
-      left: -6px;
-      width: 14px;
-      height: 20px;
-      background: var(--gold-dark);
-      border-radius: 3px;
-      box-shadow: 0 0 6px rgba(0,0,0,0.9);
-    }
+.cylinder-face:nth-child(1) { transform: rotateY(0deg) translateZ(90px); }
+.cylinder-face:nth-child(2) { transform: rotateY(60deg) translateZ(90px); }
+.cylinder-face:nth-child(3) { transform: rotateY(120deg) translateZ(90px); }
+.cylinder-face:nth-child(4) { transform: rotateY(180deg) translateZ(90px); }
+.cylinder-face:nth-child(5) { transform: rotateY(240deg) translateZ(90px); }
+.cylinder-face:nth-child(6) { transform: rotateY(300deg) translateZ(90px); }
 
-    /* ==========================================================================
-       SECTION 7: VISUALIZER & BUTTON STYLING
-       ========================================================================== */
-    .audio-visualizer-box {
-      display: flex;
-      justify-content: center;
-      align-items: flex-end;
-      gap: 5px;
-      height: 24px;
-      margin: 18px 0;
-    }
+.cylinder-top {
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    background: radial-gradient(circle, #660000, #220000);
+    border-radius: 50%;
+    border: 3px solid #ff4400;
+    transform: rotateX(90deg) translateZ(140px);
+    box-shadow: 0 0 30px rgba(255, 50, 0, 0.6);
+}
 
-    .v-bar {
-      width: 5px;
-      height: 6px;
-      background: linear-gradient(to top, var(--gold-dark), var(--gold-light));
-      border-radius: 3px;
-      transition: height 0.2s ease;
-    }
+.cylinder-bottom {
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    background: radial-gradient(circle, #440000, #110000);
+    border-radius: 50%;
+    border: 3px solid #ff2200;
+    transform: rotateX(90deg) translateZ(-140px);
+}
 
-    .animating-bars .v-bar {
-      animation: equalizerPulse 0.55s ease-in-out infinite alternate;
-    }
+/* زر الواجهة الثانية */
+.btn2 {
+    position: relative;
+    padding: 20px 60px;
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(135deg, #ff0055, #990033);
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 0 30px rgba(255, 0, 80, 0.8);
+    transition: all 0.25s ease;
+    z-index: 20;
+}
 
-    .animating-bars .v-bar:nth-child(1) { animation-delay: 0.1s; }
-    .animating-bars .v-bar:nth-child(2) { animation-delay: 0.3s; }
-    .animating-bars .v-bar:nth-child(3) { animation-delay: 0.2s; }
-    .animating-bars .v-bar:nth-child(4) { animation-delay: 0.4s; }
-    .animating-bars .v-bar:nth-child(5) { animation-delay: 0.15s; }
+.btn2:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 50px rgba(255, 0, 100, 1);
+}
 
-    @keyframes equalizerPulse {
-      0% { height: 6px; }
-      100% { height: 22px; }
-    }
+.btn2:active {
+    transform: scale(0.92);
+}
 
-    .btn-action {
-      background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-dark) 100%);
-      color: #0c0a09;
-      border: 1px solid var(--gold-light);
-      padding: 16px 36px;
-      font-size: 1.15rem;
-      font-weight: 800;
-      border-radius: 50px;
-      cursor: pointer;
-      box-shadow: 0 8px 25px var(--gold-shadow);
-      transition: all 0.3s ease;
-      width: 100%;
-      outline: none;
-      position: relative;
-      overflow: hidden;
-    }
+/* تأثيرات إضافية */
+.particles {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+}
 
-    .btn-action::before {
-      content: '';
-      position: absolute;
-      top: 0; left: -100%;
-      width: 100%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-      transition: left 0.6s ease;
-    }
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #ff3300;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #ff0000;
+    animation: floatUp 4s linear infinite;
+}
 
-    .btn-action:hover::before {
-      left: 100%;
-    }
+@keyframes floatUp {
+    0% { transform: translateY(100vh) scale(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-20px) scale(1); opacity: 0; }
+}
 
-    .btn-action:active {
-      transform: scale(0.97);
-    }
+.smoke {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(80,0,0,0.4), transparent 70%);
+    border-radius: 50%;
+    filter: blur(20px);
+    animation: smokeRise 6s ease-in-out infinite;
+    pointer-events: none;
+}
 
-    /* ==========================================================================
-       SECTION 8: UTILITIES & CLASS TOGGLES
-       ========================================================================== */
-    .hidden {
-      display: none !important;
-    }
+@keyframes smokeRise {
+    0% { transform: translateY(50px) scale(0.8); opacity: 0.6; }
+    50% { opacity: 0.3; }
+    100% { transform: translateY(-150px) scale(1.5); opacity: 0; }
+}
 
-    .is-spinning {
-      animation: spinVinyl 2.2s linear infinite !important;
-    }
+.flash {
+    position: fixed;
+    inset: 0;
+    background: #ff0000;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 100;
+    transition: opacity 0.1s;
+}
 
-    .arm-active {
-      transform: rotate(12deg) !important;
-    }
+.flash.active {
+    opacity: 0.35;
+}
 
-    @keyframes spinVinyl {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
+.playing-text {
+    margin-top: 30px;
+    font-size: 1.3rem;
+    color: #ff6688;
+    opacity: 0;
+    transition: opacity 0.5s;
+    text-shadow: 0 0 10px #ff0044;
+}
 
-    .status-text {
-      margin-top: 15px;
-      font-size: 0.88rem;
-      color: #ff6b6b;
-      font-weight: bold;
-      min-height: 22px;
-    }
-  </style>
+.playing-text.show {
+    opacity: 1;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+/* ردود فعل عند الضغط */
+.shake {
+    animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-6px); }
+    80% { transform: translateX(6px); }
+}
+</style>
 </head>
 <body>
 
-  <!-- Particle System Engine Canvas -->
-  <canvas id="particleCanvas"></canvas>
+<!-- الواجهة الأولى -->
+<div id="screen1">
+    <h1 class="title1">عبد الرزاق العنيف 🔥</h1>
+    <button class="btn" id="btn1">اضغط هنا</button>
+</div>
 
-  <div class="app-wrapper">
-
-    <!-- SCREEN 1 -->
-    <div id="screen1" class="app-card">
-      <div class="media-frame">
-        <img src="mother.jpg" alt="عبد الرزاق">
-      </div>
-      <div class="title-primary">عبد الرزاق العنيف 🔥</div>
-      <button class="btn-action" onclick="navigateToSecondScreen()">دخول ⚡</button>
-    </div>
-
-    <!-- SCREEN 2 -->
-    <div id="screen2" class="app-card hidden">
-      <div class="title-secondary">الك شييييخ عبددد ❤️‍🔥🔞</div>
-
-      <div class="player-container">
-        <div id="toneArm" class="tone-arm-system"></div>
-        <div id="vinylDisc" class="vinyl-disc">
-          <div class="vinyl-label">
-            <div class="center-spindle"></div>
-          </div>
+<!-- الواجهة الثانية -->
+<div id="screen2">
+    <h1 class="title2">شييييخ عبددد ❤️‍🔥🔞</h1>
+    
+    <div class="cylinder-container">
+        <div class="cylinder" id="cylinder">
+            <div class="cylinder-face"></div>
+            <div class="cylinder-face"></div>
+            <div class="cylinder-face"></div>
+            <div class="cylinder-face"></div>
+            <div class="cylinder-face"></div>
+            <div class="cylinder-face"></div>
+            <div class="cylinder-top"></div>
+            <div class="cylinder-bottom"></div>
         </div>
-      </div>
-
-      <!-- Equalizer Visualizer -->
-      <div id="visualizer" class="audio-visualizer-box">
-        <div class="v-bar"></div>
-        <div class="v-bar"></div>
-        <div class="v-bar"></div>
-        <div class="v-bar"></div>
-        <div class="v-bar"></div>
-      </div>
-
-      <button id="playBtn" class="btn-action" onclick="toggleAudioPlayback()">تشغيل الموسيقى</button>
-      <div id="statusNotice" class="status-text"></div>
     </div>
 
-  </div>
+    <button class="btn2" id="btn2">اضغط هنا</button>
+    <div class="playing-text" id="playingText">🎵 الأغنية شغالة يا وحش...</div>
+</div>
 
-  <!-- Audio Element -->
-  <audio id="mainAudio" src="song.mp3" preload="auto" playsinline webkit-playsinline></audio>
+<div class="particles" id="particles"></div>
+<div class="flash" id="flash"></div>
 
-  <script>
-    /* ==========================================================================
-       SECTION 9: CANVAS PARTICLE ENGINE & INTERACTIVITY LOGIC
-       ========================================================================== */
-    const canvas = document.getElementById('particleCanvas');
-    const ctx = canvas.getContext('2d');
-    let particles = [];
+<!-- صوت (تقدر تغير الرابط لأي أغنية تبيها) -->
+<audio id="song" loop preload="auto">
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+</audio>
 
-    function setupCanvasSize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+<script>
+// ========== إنشاء الجزيئات ==========
+const particlesContainer = document.getElementById('particles');
+for (let i = 0; i < 40; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.animationDelay = Math.random() * 5 + 's';
+    p.style.animationDuration = (3 + Math.random() * 4) + 's';
+    p.style.width = p.style.height = (2 + Math.random() * 4) + 'px';
+    particlesContainer.appendChild(p);
+}
+
+// دخان تحت الأسطوانة
+const cylinderContainer = document.querySelector('.cylinder-container');
+for (let i = 0; i < 3; i++) {
+    const smoke = document.createElement('div');
+    smoke.className = 'smoke';
+    smoke.style.left = (30 + i * 40) + 'px';
+    smoke.style.bottom = '-30px';
+    smoke.style.animationDelay = i * 1.5 + 's';
+    cylinderContainer.appendChild(smoke);
+}
+
+// ========== الانتقال بين الواجهات ==========
+const screen1 = document.getElementById('screen1');
+const screen2 = document.getElementById('screen2');
+const btn1 = document.getElementById('btn1');
+const btn2 = document.getElementById('btn2');
+const song = document.getElementById('song');
+const flash = document.getElementById('flash');
+const playingText = document.getElementById('playingText');
+
+btn1.addEventListener('click', () => {
+    // فلاش أحمر
+    flash.classList.add('active');
+    setTimeout(() => flash.classList.remove('active'), 150);
+
+    // اهتزاز
+    document.body.classList.add('shake');
+    setTimeout(() => document.body.classList.remove('shake'), 400);
+
+    // إخفاء الواجهة الأولى
+    screen1.classList.add('hidden');
+    
+    setTimeout(() => {
+        screen1.style.display = 'none';
+        screen2.classList.add('active');
+    }, 800);
+});
+
+// ========== تشغيل الأغنية ==========
+let isPlaying = false;
+
+btn2.addEventListener('click', () => {
+    flash.classList.add('active');
+    setTimeout(() => flash.classList.remove('active'), 120);
+
+    document.body.classList.add('shake');
+    setTimeout(() => document.body.classList.remove('shake'), 400);
+
+    if (!isPlaying) {
+        song.volume = 0.85;
+        song.play().then(() => {
+            isPlaying = true;
+            playingText.classList.add('show');
+            btn2.textContent = 'شغالة يا وحش 🔥';
+            btn2.style.background = 'linear-gradient(135deg, #00aa44, #006622)';
+        }).catch(err => {
+            alert('المتصفح منع التشغيل التلقائي، اضغط مرة ثانية');
+        });
+    } else {
+        song.pause();
+        isPlaying = false;
+        playingText.classList.remove('show');
+        btn2.textContent = 'اضغط هنا';
+        btn2.style.background = 'linear-gradient(135deg, #ff0055, #990033)';
     }
-    window.addEventListener('resize', setupCanvasSize);
-    setupCanvasSize();
+});
 
-    class GoldParticle {
-      constructor() {
-        this.reset();
-      }
-      reset() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 2.5 + 0.5;
-        this.velocityX = (Math.random() - 0.5) * 0.6;
-        this.velocityY = (Math.random() - 0.5) * 0.6;
-        this.alpha = Math.random() * 0.6 + 0.2;
-      }
-      update() {
-        this.x += this.velocityX;
-        this.y += this.velocityY;
+// تأثير إضافي: الأسطوانة تكبر شوي لما تضغط
+btn2.addEventListener('mousedown', () => {
+    document.getElementById('cylinder').style.transform = 'scale(1.08)';
+});
+btn2.addEventListener('mouseup', () => {
+    document.getElementById('cylinder').style.transform = 'scale(1)';
+});
 
-        if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
-          this.reset();
-        }
-      }
-      draw() {
-        ctx.fillStyle = `rgba(212, 175, 55, ${this.alpha})`;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    function initParticleEngine() {
-      particles = [];
-      const density = Math.floor((canvas.width * canvas.height) / 10000);
-      for (let i = 0; i < density; i++) {
-        particles.push(new GoldParticle());
-      }
-    }
-
-    function renderParticles() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (let i = 0; i < particles.length; i++) {
-        particles[i].update();
-        particles[i].draw();
-      }
-      requestAnimationFrame(renderParticles);
-    }
-
-    initParticleEngine();
-    renderParticles();
-
-    /* ==========================================================================
-       SECTION 10: APPLICATION NAVIGATION & AUDIO PLAYER CONTROLLER
-       ========================================================================== */
-    const audio = document.getElementById('mainAudio');
-    const vinylDisc = document.getElementById('vinylDisc');
-    const toneArm = document.getElementById('toneArm');
-    const playBtn = document.getElementById('playBtn');
-    const statusNotice = document.getElementById('statusNotice');
-    const visualizer = document.getElementById('visualizer');
-
-    function navigateToSecondScreen() {
-      document.getElementById('screen1').classList.add('hidden');
-      document.getElementById('screen2').classList.remove('hidden');
-
-      // Pre-charge audio buffer
-      audio.play().then(() => {
-        audio.pause();
-      }).catch((e) => {
-        console.log("Audio initialization:", e);
-      });
-    }
-
-    function toggleAudioPlayback() {
-      statusNotice.innerText = "";
-
-      if (audio.paused) {
-        const playPromise = audio.play();
-
-        if (playPromise !== undefined) {
-          playPromise.then(() => {
-            vinylDisc.classList.add('is-spinning');
-            toneArm.classList.add('arm-active');
-            visualizer.classList.add('animating-bars');
-            playBtn.innerText = "إيقاف الموسيقى";
-          }).catch((err) => {
-            console.error("Audio playback error:", err);
-            statusNotice.innerText = "تعذر تشغيل الصوت، تأكد من وجود ملف song.mp3.";
-          });
-        }
-      } else {
-        audio.pause();
-        vinylDisc.classList.remove('is-spinning');
-        toneArm.classList.remove('arm-active');
-        visualizer.classList.remove('animating-bars');
-        playBtn.innerText = "تشغيل الموسيقى";
-      }
-    }
-
-    audio.addEventListener('ended', () => {
-      vinylDisc.classList.remove('is-spinning');
-      toneArm.classList.remove('arm-active');
-      visualizer.classList.remove('animating-bars');
-      playBtn.innerText = "تشغيل الموسيقى";
-    });
-  </script>
+// منع الزر اليمين عشان ما يفسد الجو
+document.addEventListener('contextmenu', e => e.preventDefault());
+</script>
 </body>
 </html>
