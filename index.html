@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#030303">
-<title>عبد</title>
+<title>سيييد عبد العنيف</title>
 
 <style>
 *{
@@ -52,8 +52,6 @@ button{
     transparent 4px
   );
 }
-
-/* الخلفية */
 
 .ambient{
   position:fixed;
@@ -128,15 +126,14 @@ button{
   }
   20%{opacity:1}
   100%{
-    transform:translate(
-      var(--x),
-      var(--y)
-    ) scale(0);
+    transform:translate(var(--x),var(--y)) scale(0);
     opacity:0;
   }
 }
 
-/* الصفحة الأولى */
+/* =========================
+   الواجهة الأولى
+========================= */
 
 .home{
   min-height:100vh;
@@ -150,7 +147,7 @@ button{
 }
 
 .home-inner{
-  width:min(700px,100%);
+  width:min(800px,100%);
 }
 
 .line{
@@ -176,11 +173,13 @@ button{
 
 .home h1{
   margin:0;
-  font-size:clamp(80px,20vw,170px);
-  line-height:.8;
+  font-size:clamp(48px,11vw,105px);
+  line-height:.95;
   font-weight:950;
-  letter-spacing:-8px;
-  text-shadow:0 0 50px rgba(255,255,255,.12);
+  letter-spacing:-4px;
+  text-shadow:
+    0 0 30px rgba(255,255,255,.15),
+    0 0 80px rgba(255,255,255,.06);
 }
 
 .subtitle{
@@ -216,7 +215,13 @@ button{
   transform:scale(.95);
 }
 
-/* شاشة الموسيقى */
+.home.hidden{
+  display:none;
+}
+
+/* =========================
+   الواجهة الثانية
+========================= */
 
 .music{
   min-height:100vh;
@@ -233,10 +238,6 @@ button{
   display:flex;
 }
 
-.home.hidden{
-  display:none;
-}
-
 .back{
   position:fixed;
   top:18px;
@@ -248,8 +249,6 @@ button{
   border-radius:100px;
   padding:10px 17px;
 }
-
-/* العنوان */
 
 .heading{
   text-align:center;
@@ -267,9 +266,10 @@ button{
 
 .heading h2{
   margin:0;
-  font-size:clamp(45px,11vw,80px);
+  font-size:clamp(42px,10vw,82px);
   line-height:.9;
   font-weight:950;
+  text-shadow:0 0 35px rgba(255,255,255,.1);
 }
 
 .heading p{
@@ -278,7 +278,9 @@ button{
   font-size:12px;
 }
 
-/* المسرح */
+/* =========================
+   الأسطوانة
+========================= */
 
 .stage{
   position:relative;
@@ -299,8 +301,6 @@ button{
   transition:transform .08s linear,opacity .08s linear;
 }
 
-/* الحلقة */
-
 .orbit{
   position:absolute;
   width:94%;
@@ -320,8 +320,6 @@ button{
     opacity:.7;
   }
 }
-
-/* الأسطوانة */
 
 .record{
   position:relative;
@@ -352,7 +350,7 @@ button{
   animation:spin 5s linear infinite;
   animation-play-state:paused;
 
-  transition:transform .08s linear;
+  transition:filter .08s linear;
 }
 
 .record.playing{
@@ -375,8 +373,6 @@ button{
 .g3{inset:22%}
 .g4{inset:29%}
 .g5{inset:36%}
-
-/* مركز الأسطوانة */
 
 .label-center{
   position:absolute;
@@ -424,37 +420,24 @@ button{
   z-index:8;
 }
 
-/* =================================================
+/* =========================
    ذراع الأسطوانة
-================================================= */
+========================= */
 
 .tonearm{
   position:absolute;
   z-index:20;
-
-  /*
-    الوضع الأساسي: مرفوع بعيداً عن الأسطوانة
-  */
   width:135px;
   height:240px;
-
   right:0;
   top:-15px;
-
-  transform-origin:
-    82% 5%;
-
+  transform-origin:82% 5%;
   transform:rotate(13deg);
-
-  transition:
-    transform 1s cubic-bezier(.2,.8,.2,1);
+  transition:transform 1s cubic-bezier(.2,.8,.2,1);
   pointer-events:none;
 }
 
 .tonearm.playing{
-  /*
-    عند التشغيل ينزل الذراع باتجاه الأسطوانة
-  */
   transform:rotate(43deg);
 }
 
@@ -472,8 +455,7 @@ button{
     #151515 70%
   );
   border:2px solid #444;
-  box-shadow:
-    0 0 20px rgba(255,255,255,.1);
+  box-shadow:0 0 20px rgba(255,255,255,.1);
 }
 
 .arm-base:after{
@@ -495,7 +477,6 @@ button{
   width:9px;
   height:170px;
   border-radius:20px;
-
   background:linear-gradient(
     90deg,
     #333,
@@ -503,9 +484,7 @@ button{
     #666,
     #222
   );
-
-  box-shadow:
-    0 0 12px rgba(255,255,255,.08);
+  box-shadow:0 0 12px rgba(255,255,255,.08);
 }
 
 .head{
@@ -536,7 +515,9 @@ button{
   box-shadow:0 0 12px #fff;
 }
 
-/* اللاعب */
+/* =========================
+   المشغل
+========================= */
 
 .player{
   width:min(620px,96vw);
@@ -546,8 +527,7 @@ button{
   background:rgba(255,255,255,.035);
   backdrop-filter:blur(20px);
   -webkit-backdrop-filter:blur(20px);
-  box-shadow:
-    0 30px 100px rgba(0,0,0,.6);
+  box-shadow:0 30px 100px rgba(0,0,0,.6);
 }
 
 .track{
@@ -592,8 +572,6 @@ button{
   direction:ltr;
 }
 
-/* المعادل الصوتي */
-
 .equalizer{
   height:32px;
   display:flex;
@@ -628,8 +606,6 @@ button{
   from{transform:scaleY(.3)}
   to{transform:scaleY(3)}
 }
-
-/* شريط الوقت */
 
 .progress{
   width:100%;
@@ -672,8 +648,6 @@ button{
   font-size:10px;
   margin-top:8px;
 }
-
-/* الأزرار */
 
 .controls{
   display:flex;
@@ -718,8 +692,6 @@ button{
 .play:active{
   transform:scale(.94);
 }
-
-/* الصوت */
 
 .bottom{
   margin-top:17px;
@@ -776,12 +748,10 @@ button{
   margin-top:12px;
 }
 
-/* موبايل */
-
 @media(max-width:600px){
 
   .home h1{
-    letter-spacing:-5px;
+    letter-spacing:-3px;
   }
 
   .music{
@@ -831,7 +801,9 @@ button{
   <div id="particles"></div>
   <div id="sparks"></div>
 
-  <!-- الصفحة الأولى -->
+  <!-- =========================
+       الواجهة الأولى
+  ========================== -->
 
   <section id="home" class="home">
 
@@ -844,7 +816,7 @@ button{
       </div>
 
       <h1>
-        عبد
+        سيييد عبد العنيف 🔥🔞
       </h1>
 
       <div class="subtitle">
@@ -862,7 +834,9 @@ button{
   </section>
 
 
-  <!-- صفحة الموسيقى -->
+  <!-- =========================
+       الواجهة الثانية
+  ========================== -->
 
   <section id="music" class="music">
 
@@ -877,7 +851,7 @@ button{
       </small>
 
       <h2>
-        عبد
+        الك شيييخ ❤️‍🔥
       </h2>
 
       <p>
@@ -886,8 +860,6 @@ button{
 
     </div>
 
-
-    <!-- الأسطوانة -->
 
     <div class="stage">
 
@@ -913,7 +885,7 @@ button{
       </div>
 
 
-      <!-- الذراع -->
+      <!-- ذراع الأسطوانة -->
 
       <div id="tonearm" class="tonearm">
 
@@ -927,8 +899,6 @@ button{
 
     </div>
 
-
-    <!-- المشغل -->
 
     <div class="player">
 
@@ -946,7 +916,6 @@ button{
           </div>
 
         </div>
-
 
         <div id="equalizer" class="equalizer">
 
@@ -977,7 +946,6 @@ button{
         step=".01"
         value="0"
       >
-
 
       <div class="times">
 
@@ -1048,8 +1016,7 @@ button{
 </div>
 
 
-<!-- ملف الأغنية الموجود في المستودع -->
-
+<!-- الأغنية الموجودة في المستودع -->
 <audio
   id="audio"
   src="./song.mp3"
@@ -1058,111 +1025,54 @@ button{
 
 
 <script>
-const audio =
-  document.getElementById("audio");
 
-const home =
-  document.getElementById("home");
+const audio=document.getElementById("audio");
+const home=document.getElementById("home");
+const music=document.getElementById("music");
+const enter=document.getElementById("enter");
+const back=document.getElementById("back");
+const play=document.getElementById("play");
+const restart=document.getElementById("restart");
+const mute=document.getElementById("mute");
+const volumeButton=document.getElementById("volumeButton");
+const progress=document.getElementById("progress");
+const volume=document.getElementById("volume");
+const current=document.getElementById("current");
+const total=document.getElementById("total");
+const status=document.getElementById("status");
+const error=document.getElementById("error");
+const record=document.getElementById("record");
+const tonearm=document.getElementById("tonearm");
+const glow=document.getElementById("glow");
+const equalizer=document.getElementById("equalizer");
+const particles=document.getElementById("particles");
+const sparks=document.getElementById("sparks");
 
-const music =
-  document.getElementById("music");
-
-const enter =
-  document.getElementById("enter");
-
-const back =
-  document.getElementById("back");
-
-const play =
-  document.getElementById("play");
-
-const restart =
-  document.getElementById("restart");
-
-const mute =
-  document.getElementById("mute");
-
-const volumeButton =
-  document.getElementById("volumeButton");
-
-const progress =
-  document.getElementById("progress");
-
-const volume =
-  document.getElementById("volume");
-
-const current =
-  document.getElementById("current");
-
-const total =
-  document.getElementById("total");
-
-const status =
-  document.getElementById("status");
-
-const error =
-  document.getElementById("error");
-
-const record =
-  document.getElementById("record");
-
-const tonearm =
-  document.getElementById("tonearm");
-
-const glow =
-  document.getElementById("glow");
-
-const equalizer =
-  document.getElementById("equalizer");
-
-const particles =
-  document.getElementById("particles");
-
-const sparks =
-  document.getElementById("sparks");
+let playing=false;
+let muted=false;
+let audioContext=null;
+let analyser=null;
+let source=null;
+let animation=null;
 
 
-let playing = false;
-let muted = false;
-let audioContext = null;
-let analyser = null;
-let source = null;
-let animation = null;
-
-
-/* ==============================
-   PARTICLES
-============================== */
+/* الجزيئات */
 
 function makeParticles(){
 
-  const amount =
-    window.innerWidth < 600
-      ? 55
-      : 100;
+  const amount=window.innerWidth<600?55:100;
 
-  for(
-    let i=0;
-    i<amount;
-    i++
-  ){
+  for(let i=0;i<amount;i++){
 
-    const p =
-      document.createElement("span");
+    const p=document.createElement("span");
 
     p.className="particle";
 
-    p.style.left =
-      Math.random()*100+"%";
+    p.style.left=Math.random()*100+"%";
+    p.style.top=Math.random()*100+"%";
 
-    p.style.top =
-      Math.random()*100+"%";
-
-    p.style.width =
-      1+Math.random()*4+"px";
-
-    p.style.height =
-      p.style.width;
+    p.style.width=1+Math.random()*4+"px";
+    p.style.height=p.style.width;
 
     p.style.setProperty(
       "--delay",
@@ -1181,33 +1091,20 @@ function makeParticles(){
 makeParticles();
 
 
-/* ==============================
-   SPARKS
-============================== */
+/* الشرارات */
 
 function makeSparks(){
 
-  const amount =
-    window.innerWidth < 600
-      ? 30
-      : 65;
+  const amount=window.innerWidth<600?30:65;
 
-  for(
-    let i=0;
-    i<amount;
-    i++
-  ){
+  for(let i=0;i<amount;i++){
 
-    const s =
-      document.createElement("span");
+    const s=document.createElement("span");
 
     s.className="spark";
 
-    s.style.left =
-      Math.random()*100+"%";
-
-    s.style.top =
-      Math.random()*100+"%";
+    s.style.left=Math.random()*100+"%";
+    s.style.top=Math.random()*100+"%";
 
     s.style.setProperty(
       "--x",
@@ -1236,58 +1133,51 @@ function makeSparks(){
 makeSparks();
 
 
-/* ==============================
-   دخول الصفحة
-============================== */
+/* دخول */
 
-enter.addEventListener(
-  "click",
-  ()=>{
-    home.classList.add("hidden");
-    music.classList.add("active");
-    window.scrollTo(0,0);
-  }
-);
+enter.addEventListener("click",()=>{
 
+  home.classList.add("hidden");
 
-/* ==============================
-   رجوع
-============================== */
+  music.classList.add("active");
 
-back.addEventListener(
-  "click",
-  ()=>{
-    audio.pause();
+  window.scrollTo(0,0);
 
-    playing=false;
-
-    record.classList.remove("playing");
-    tonearm.classList.remove("playing");
-    equalizer.classList.remove("active");
-
-    play.textContent="▶";
-
-    status.textContent=
-      "جاهز للتشغيل";
-
-    music.classList.remove("active");
-    home.classList.remove("hidden");
-  }
-);
+});
 
 
-/* ==============================
-   Audio Context
-============================== */
+/* رجوع */
+
+back.addEventListener("click",()=>{
+
+  audio.pause();
+
+  playing=false;
+
+  record.classList.remove("playing");
+
+  tonearm.classList.remove("playing");
+
+  equalizer.classList.remove("active");
+
+  play.textContent="▶";
+
+  status.textContent="جاهز للتشغيل";
+
+  music.classList.remove("active");
+
+  home.classList.remove("hidden");
+
+});
+
+
+/* Audio Context */
 
 function setupAudio(){
 
   if(audioContext){
 
-    if(
-      audioContext.state ===
-      "suspended"
-    ){
+    if(audioContext.state==="suspended"){
       audioContext.resume();
     }
 
@@ -1296,26 +1186,22 @@ function setupAudio(){
 
   try{
 
-    const AudioClass =
+    const AudioClass=
       window.AudioContext ||
       window.webkitAudioContext;
 
-    if(!AudioClass) return;
+    if(!AudioClass)return;
 
-    audioContext =
-      new AudioClass();
+    audioContext=new AudioClass();
 
-    analyser =
-      audioContext.createAnalyser();
+    analyser=audioContext.createAnalyser();
 
     analyser.fftSize=256;
 
     analyser.smoothingTimeConstant=.82;
 
-    source =
-      audioContext.createMediaElementSource(
-        audio
-      );
+    source=
+      audioContext.createMediaElementSource(audio);
 
     source.connect(analyser);
 
@@ -1331,16 +1217,12 @@ function setupAudio(){
 }
 
 
-/* ==============================
-   Visualizer
-============================== */
+/* التفاعل مع الموسيقى */
 
 function visualizer(){
 
-  if(
-    !analyser ||
-    !playing
-  ){
+  if(!analyser || !playing){
+
     if(animation){
       cancelAnimationFrame(animation);
       animation=null;
@@ -1349,7 +1231,7 @@ function visualizer(){
     return;
   }
 
-  const data =
+  const data=
     new Uint8Array(
       analyser.frequencyBinCount
     );
@@ -1358,235 +1240,144 @@ function visualizer(){
 
   let sum=0;
 
-  for(
-    let i=0;
-    i<data.length;
-    i++
-  ){
+  for(let i=0;i<data.length;i++){
     sum+=data[i];
   }
 
-  const average =
+  const average=
     data.length
       ? sum/data.length
       : 0;
 
-  const bassEnd =
+  const bassEnd=
     Math.max(
       1,
-      Math.floor(
-        data.length*.12
-      )
+      Math.floor(data.length*.12)
     );
 
   let bassSum=0;
 
-  for(
-    let i=0;
-    i<bassEnd;
-    i++
-  ){
+  for(let i=0;i<bassEnd;i++){
     bassSum+=data[i];
   }
 
-  const bass =
-    bassSum/bassEnd;
+  const bass=bassSum/bassEnd;
 
-  const intensity =
-    Math.min(
-      1,
-      average/150
-    );
+  const intensity=
+    Math.min(1,average/150);
 
-  const bassPower =
-    Math.min(
-      1,
-      bass/180
-    );
-
-  const scale =
-    1+
-    intensity*.035+
-    bassPower*.025;
-
-  /*
-    نخلي الإضاءة تتحرك مع الصوت
-  */
+  const bassPower=
+    Math.min(1,bass/180);
 
   glow.style.transform=
-    "scale("+
-    (1+bassPower*.4)+
-    ")";
+    "scale("+(1+bassPower*.4)+")";
 
   glow.style.opacity=
-    .15+
-    intensity*.45;
+    .15+intensity*.45;
 
   record.style.filter=
-    "brightness("+
-    (1+intensity*.18)+
-    ")";
+    "brightness("+(1+intensity*.18)+")";
 
-  /*
-    حركة بسيطة للخلفية
-  */
-
-  document
-    .querySelector(".ambient.a")
+  document.querySelector(".ambient.a")
     .style.transform=
-      "scale("+
-      (1+bassPower*.5)+
-      ")";
+    "scale("+(1+bassPower*.5)+")";
 
-  document
-    .querySelector(".ambient.b")
+  document.querySelector(".ambient.b")
     .style.transform=
-      "scale("+
-      (1+intensity*.35)+
-      ")";
+    "scale("+(1+intensity*.35)+")";
 
-  /*
-    تكبير بسيط متفاعل مع الضربات
-  */
-
-  record.style.setProperty(
-    "--audio-scale",
-    scale
-  );
-
-  animation =
-    requestAnimationFrame(
-      visualizer
-    );
+  animation=
+    requestAnimationFrame(visualizer);
 }
 
 
-/* ==============================
-   تشغيل / إيقاف
-============================== */
+/* التشغيل */
 
-play.addEventListener(
-  "click",
-  async ()=>{
+play.addEventListener("click",async()=>{
 
-    setupAudio();
+  setupAudio();
 
-    try{
-
-      if(audio.paused){
-
-        await audio.play();
-
-        playing=true;
-
-        record.classList.add(
-          "playing"
-        );
-
-        /*
-          الذراع ينزل
-        */
-
-        tonearm.classList.add(
-          "playing"
-        );
-
-        equalizer.classList.add(
-          "active"
-        );
-
-        play.textContent="❚❚";
-
-        status.textContent=
-          "يعمل الآن";
-
-        error.textContent="";
-
-        if(
-          audioContext &&
-          audioContext.state===
-          "suspended"
-        ){
-          await audioContext.resume();
-        }
-
-        visualizer();
-
-      }else{
-
-        audio.pause();
-
-        playing=false;
-
-        record.classList.remove(
-          "playing"
-        );
-
-        /*
-          الذراع يرجع
-        */
-
-        tonearm.classList.remove(
-          "playing"
-        );
-
-        equalizer.classList.remove(
-          "active"
-        );
-
-        play.textContent="▶";
-
-        status.textContent=
-          "متوقف مؤقتاً";
-
-      }
-
-    }catch(e){
-
-      console.error(e);
-
-      error.textContent=
-        "تأكد من وجود song.mp3 في نفس مجلد index.html.";
-
-      status.textContent=
-        "تعذر تشغيل الأغنية";
-
-    }
-
-  }
-);
-
-
-/* ==============================
-   إعادة التشغيل
-============================== */
-
-restart.addEventListener(
-  "click",
-  ()=>{
-
-    audio.currentTime=0;
+  try{
 
     if(audio.paused){
 
-      progress.value=0;
+      await audio.play();
 
-      progress.style.setProperty(
-        "--progress",
-        "0%"
-      );
+      playing=true;
 
-      current.textContent=
-        "00:00";
+      record.classList.add("playing");
+
+      tonearm.classList.add("playing");
+
+      equalizer.classList.add("active");
+
+      play.textContent="❚❚";
+
+      status.textContent="يعمل الآن";
+
+      error.textContent="";
+
+      if(
+        audioContext &&
+        audioContext.state==="suspended"
+      ){
+        await audioContext.resume();
+      }
+
+      visualizer();
+
+    }else{
+
+      audio.pause();
+
+      playing=false;
+
+      record.classList.remove("playing");
+
+      tonearm.classList.remove("playing");
+
+      equalizer.classList.remove("active");
+
+      play.textContent="▶";
+
+      status.textContent="متوقف مؤقتاً";
+
     }
 
+  }catch(e){
+
+    console.error(e);
+
+    error.textContent=
+      "تأكد من وجود song.mp3 في نفس مجلد index.html.";
+
+    status.textContent=
+      "تعذر تشغيل الأغنية";
+
   }
-);
+
+});
 
 
-/* ==============================
-   الوقت
-============================== */
+/* إعادة */
+
+restart.addEventListener("click",()=>{
+
+  audio.currentTime=0;
+
+  progress.value=0;
+
+  progress.style.setProperty(
+    "--progress",
+    "0%"
+  );
+
+  current.textContent="00:00";
+
+});
+
+
+/* الوقت */
 
 function timeFormat(seconds){
 
@@ -1597,13 +1388,11 @@ function timeFormat(seconds){
     return "00:00";
   }
 
-  const min =
-    Math.floor(seconds/60);
+  const min=Math.floor(seconds/60);
 
-  const sec =
-    Math.floor(seconds%60);
+  const sec=Math.floor(seconds%60);
 
-  return (
+  return(
     String(min).padStart(2,"0")+
     ":"+
     String(sec).padStart(2,"0")
@@ -1614,12 +1403,8 @@ function timeFormat(seconds){
 audio.addEventListener(
   "loadedmetadata",
   ()=>{
-
     total.textContent=
-      timeFormat(
-        audio.duration
-      );
-
+      timeFormat(audio.duration);
   }
 );
 
@@ -1629,22 +1414,16 @@ audio.addEventListener(
   ()=>{
 
     current.textContent=
-      timeFormat(
-        audio.currentTime
-      );
+      timeFormat(audio.currentTime);
 
     if(
-      Number.isFinite(
-        audio.duration
-      ) &&
+      Number.isFinite(audio.duration) &&
       audio.duration>0
     ){
 
-      const value =
-        (
-          audio.currentTime/
-          audio.duration
-        )*100;
+      const value=
+        audio.currentTime/
+        audio.duration*100;
 
       progress.value=value;
 
@@ -1659,15 +1438,13 @@ audio.addEventListener(
 );
 
 
-/* ==============================
-   شريط الوقت
-============================== */
+/* شريط التقدم */
 
 progress.addEventListener(
   "input",
   ()=>{
 
-    const value =
+    const value=
       Number(progress.value);
 
     progress.style.setProperty(
@@ -1676,17 +1453,12 @@ progress.addEventListener(
     );
 
     if(
-      Number.isFinite(
-        audio.duration
-      ) &&
+      Number.isFinite(audio.duration) &&
       audio.duration>0
     ){
 
       audio.currentTime=
-        (
-          value/100
-        )*
-        audio.duration;
+        value/100*audio.duration;
 
     }
 
@@ -1694,14 +1466,11 @@ progress.addEventListener(
 );
 
 
-/* ==============================
-   الصوت
-============================== */
+/* الصوت */
 
 function updateVolume(){
 
-  const value=
-    Number(volume.value);
+  const value=Number(volume.value);
 
   audio.volume=value;
 
@@ -1732,9 +1501,7 @@ volume.addEventListener(
 );
 
 
-/* ==============================
-   كتم
-============================== */
+/* كتم */
 
 function toggleMute(){
 
@@ -1743,12 +1510,11 @@ function toggleMute(){
   audio.muted=muted;
 
   mute.textContent=
-    muted ? "×" : "V";
+    muted?"×":"V";
 
   volumeButton.textContent=
-    muted ? "×" : "V";
+    muted?"×":"V";
 }
-
 
 mute.addEventListener(
   "click",
@@ -1761,9 +1527,7 @@ volumeButton.addEventListener(
 );
 
 
-/* ==============================
-   أحداث الصوت
-============================== */
+/* حالة التشغيل */
 
 audio.addEventListener(
   "play",
@@ -1771,26 +1535,21 @@ audio.addEventListener(
 
     playing=true;
 
-    record.classList.add(
-      "playing"
-    );
+    record.classList.add("playing");
 
-    tonearm.classList.add(
-      "playing"
-    );
+    tonearm.classList.add("playing");
 
-    equalizer.classList.add(
-      "active"
-    );
+    equalizer.classList.add("active");
 
     play.textContent="❚❚";
 
-    status.textContent=
-      "يعمل الآن";
+    status.textContent="يعمل الآن";
 
   }
 );
 
+
+/* التوقف */
 
 audio.addEventListener(
   "pause",
@@ -1798,25 +1557,17 @@ audio.addEventListener(
 
     playing=false;
 
-    record.classList.remove(
-      "playing"
-    );
+    record.classList.remove("playing");
 
-    tonearm.classList.remove(
-      "playing"
-    );
+    tonearm.classList.remove("playing");
 
-    equalizer.classList.remove(
-      "active"
-    );
+    equalizer.classList.remove("active");
 
     play.textContent="▶";
 
     if(
-      audio.currentTime<
-      audio.duration
+      audio.currentTime<audio.duration
     ){
-
       status.textContent=
         "متوقف مؤقتاً";
     }
@@ -1825,23 +1576,19 @@ audio.addEventListener(
 );
 
 
+/* النهاية */
+
 audio.addEventListener(
   "ended",
   ()=>{
 
     playing=false;
 
-    record.classList.remove(
-      "playing"
-    );
+    record.classList.remove("playing");
 
-    tonearm.classList.remove(
-      "playing"
-    );
+    tonearm.classList.remove("playing");
 
-    equalizer.classList.remove(
-      "active"
-    );
+    equalizer.classList.remove("active");
 
     play.textContent="▶";
 
@@ -1851,6 +1598,8 @@ audio.addEventListener(
   }
 );
 
+
+/* خطأ الملف */
 
 audio.addEventListener(
   "error",
@@ -1866,9 +1615,7 @@ audio.addEventListener(
 );
 
 
-/* ==============================
-   اختصارات لوحة المفاتيح
-============================== */
+/* اختصارات */
 
 document.addEventListener(
   "keydown",
@@ -1896,6 +1643,7 @@ document.addEventListener(
 
   }
 );
+
 </script>
 
 </body>
