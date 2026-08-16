@@ -1,442 +1,64 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>عبد الرزاق العنيف 🔥</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    user-select: none;
-}
-
-body {
-    font-family: 'Cairo', sans-serif;
-    background: #0a0a0a;
-    color: #fff;
-    overflow: hidden;
-    height: 100vh;
-    width: 100vw;
-}
-
-/* ========== الواجهة الأولى ========== */
-#screen1 {
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(circle at center, #1a0000 0%, #000 70%);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 10;
-    transition: opacity 0.8s ease, transform 0.8s ease;
-}
-
-#screen1.hidden {
-    opacity: 0;
-    transform: scale(1.2);
-    pointer-events: none;
-}
-
-.title1 {
-    font-size: clamp(2.8rem, 8vw, 5.5rem);
-    font-weight: 900;
-    text-align: center;
-    background: linear-gradient(90deg, #ff0000, #ff6600, #ff0000);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    text-shadow: 0 0 30px rgba(255, 0, 0, 0.8);
-    animation: pulseFire 1.8s infinite alternate;
-    margin-bottom: 50px;
-    letter-spacing: 2px;
-}
-
-@keyframes pulseFire {
-    0% { transform: scale(1); filter: brightness(1); }
-    100% { transform: scale(1.05); filter: brightness(1.3); }
-}
-
-.btn {
-    position: relative;
-    padding: 18px 55px;
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: #fff;
-    background: linear-gradient(135deg, #ff2200, #990000);
-    border: none;
-    border-radius: 50px;
-    cursor: pointer;
-    box-shadow: 0 0 25px rgba(255, 30, 0, 0.7),
-                inset 0 0 15px rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
-    overflow: hidden;
-    z-index: 2;
-}
-
-.btn:hover {
-    transform: scale(1.08);
-    box-shadow: 0 0 40px rgba(255, 50, 0, 1),
-                inset 0 0 20px rgba(255, 255, 255, 0.3);
-}
-
-.btn:active {
-    transform: scale(0.95);
-}
-
-.btn::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
-    transform: rotate(45deg);
-    animation: shine 3s infinite;
-}
-
-@keyframes shine {
-    0% { transform: translateX(-100%) rotate(45deg); }
-    100% { transform: translateX(100%) rotate(45deg); }
-}
-
-/* ========== الواجهة الثانية ========== */
-#screen2 {
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(ellipse at center, #1a0505 0%, #050000 80%);
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 5;
-    opacity: 0;
-    transition: opacity 1s ease;
-}
-
-#screen2.active {
-    display: flex;
-    opacity: 1;
-}
-
-.title2 {
-    font-size: clamp(2.2rem, 7vw, 4.2rem);
-    font-weight: 900;
-    text-align: center;
-    color: #ff3366;
-    text-shadow: 0 0 20px #ff0044, 0 0 40px #ff0066;
-    margin-bottom: 40px;
-    animation: glowPulse 2s infinite alternate;
-}
-
-@keyframes glowPulse {
-    from { text-shadow: 0 0 15px #ff0044, 0 0 30px #ff0066; }
-    to { text-shadow: 0 0 30px #ff0044, 0 0 60px #ff0066, 0 0 80px #ff0088; }
-}
-
-/* الأسطوانة */
-.cylinder-container {
-    perspective: 1000px;
-    margin: 20px 0 50px;
-    position: relative;
-}
-
-.cylinder {
-    width: 180px;
-    height: 280px;
-    position: relative;
-    transform-style: preserve-3d;
-    animation: spinCylinder 8s linear infinite;
-}
-
-@keyframes spinCylinder {
-    from { transform: rotateY(0deg); }
-    to { transform: rotateY(360deg); }
-}
-
-.cylinder-face {
-    position: absolute;
-    width: 180px;
-    height: 280px;
-    background: linear-gradient(to bottom, #330000, #110000);
-    border: 3px solid #ff2200;
-    box-shadow: inset 0 0 40px rgba(255, 0, 0, 0.4);
-}
-
-.cylinder-face:nth-child(1) { transform: rotateY(0deg) translateZ(90px); }
-.cylinder-face:nth-child(2) { transform: rotateY(60deg) translateZ(90px); }
-.cylinder-face:nth-child(3) { transform: rotateY(120deg) translateZ(90px); }
-.cylinder-face:nth-child(4) { transform: rotateY(180deg) translateZ(90px); }
-.cylinder-face:nth-child(5) { transform: rotateY(240deg) translateZ(90px); }
-.cylinder-face:nth-child(6) { transform: rotateY(300deg) translateZ(90px); }
-
-.cylinder-top {
-    position: absolute;
-    width: 180px;
-    height: 180px;
-    background: radial-gradient(circle, #660000, #220000);
-    border-radius: 50%;
-    border: 3px solid #ff4400;
-    transform: rotateX(90deg) translateZ(140px);
-    box-shadow: 0 0 30px rgba(255, 50, 0, 0.6);
-}
-
-.cylinder-bottom {
-    position: absolute;
-    width: 180px;
-    height: 180px;
-    background: radial-gradient(circle, #440000, #110000);
-    border-radius: 50%;
-    border: 3px solid #ff2200;
-    transform: rotateX(90deg) translateZ(-140px);
-}
-
-/* زر الواجهة الثانية */
-.btn2 {
-    position: relative;
-    padding: 20px 60px;
-    font-size: 1.7rem;
-    font-weight: 700;
-    color: #fff;
-    background: linear-gradient(135deg, #ff0055, #990033);
-    border: none;
-    border-radius: 50px;
-    cursor: pointer;
-    box-shadow: 0 0 30px rgba(255, 0, 80, 0.8);
-    transition: all 0.25s ease;
-    z-index: 20;
-}
-
-.btn2:hover {
-    transform: scale(1.1);
-    box-shadow: 0 0 50px rgba(255, 0, 100, 1);
-}
-
-.btn2:active {
-    transform: scale(0.92);
-}
-
-/* تأثيرات إضافية */
-.particles {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 1;
-}
-
-.particle {
-    position: absolute;
-    width: 4px;
-    height: 4px;
-    background: #ff3300;
-    border-radius: 50%;
-    box-shadow: 0 0 8px #ff0000;
-    animation: floatUp 4s linear infinite;
-}
-
-@keyframes floatUp {
-    0% { transform: translateY(100vh) scale(0); opacity: 0; }
-    10% { opacity: 1; }
-    90% { opacity: 1; }
-    100% { transform: translateY(-20px) scale(1); opacity: 0; }
-}
-
-.smoke {
-    position: absolute;
-    width: 200px;
-    height: 200px;
-    background: radial-gradient(circle, rgba(80,0,0,0.4), transparent 70%);
-    border-radius: 50%;
-    filter: blur(20px);
-    animation: smokeRise 6s ease-in-out infinite;
-    pointer-events: none;
-}
-
-@keyframes smokeRise {
-    0% { transform: translateY(50px) scale(0.8); opacity: 0.6; }
-    50% { opacity: 0.3; }
-    100% { transform: translateY(-150px) scale(1.5); opacity: 0; }
-}
-
-.flash {
-    position: fixed;
-    inset: 0;
-    background: #ff0000;
-    opacity: 0;
-    pointer-events: none;
-    z-index: 100;
-    transition: opacity 0.1s;
-}
-
-.flash.active {
-    opacity: 0.35;
-}
-
-.playing-text {
-    margin-top: 30px;
-    font-size: 1.3rem;
-    color: #ff6688;
-    opacity: 0;
-    transition: opacity 0.5s;
-    text-shadow: 0 0 10px #ff0044;
-}
-
-.playing-text.show {
-    opacity: 1;
-    animation: blink 1s infinite;
-}
-
-@keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-}
-
-/* ردود فعل عند الضغط */
-.shake {
-    animation: shake 0.4s ease;
-}
-
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    20% { transform: translateX(-8px); }
-    40% { transform: translateX(8px); }
-    60% { transform: translateX(-6px); }
-    80% { transform: translateX(6px); }
-}
-</style>
+    <meta charset="UTF-8">
+    <title>نظام عبد الرزاق العنيف 🔥</title>
+    <style>
+        body { margin: 0; background: #000; overflow: hidden; font-family: 'Arial', sans-serif; }
+        canvas { display: block; }
+        #overlay { position: absolute; top: 20%; left: 0; width: 100%; text-align: center; pointer-events: none; z-index: 10; }
+        h1 { color: #d4af37; font-size: 4em; text-shadow: 0 0 20px #ff0000; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        .gun-point { position: absolute; width: 10px; height: 10px; background: red; border-radius: 50%; pointer-events: none; z-index: 100; }
+    </style>
 </head>
 <body>
 
-<!-- الواجهة الأولى -->
-<div id="screen1">
-    <h1 class="title1">عبد الرزاق العنيف 🔥</h1>
-    <button class="btn" id="btn1">اضغط هنا</button>
+<div id="overlay">
+    <h1>عبد الرزاق العنيف 🔥</h1>
+    <p style="color:white;">اضغط في أي مكان للإطلاق.. النظام جاهز.</p>
 </div>
 
-<!-- الواجهة الثانية -->
-<div id="screen2">
-    <h1 class="title2">شييييخ عبددد ❤️‍🔥🔞</h1>
-    
-    <div class="cylinder-container">
-        <div class="cylinder" id="cylinder">
-            <div class="cylinder-face"></div>
-            <div class="cylinder-face"></div>
-            <div class="cylinder-face"></div>
-            <div class="cylinder-face"></div>
-            <div class="cylinder-face"></div>
-            <div class="cylinder-face"></div>
-            <div class="cylinder-top"></div>
-            <div class="cylinder-bottom"></div>
-        </div>
-    </div>
+<canvas id="c"></canvas>
 
-    <button class="btn2" id="btn2">اضغط هنا</button>
-    <div class="playing-text" id="playingText">🎵 الأغنية شغالة يا وحش...</div>
-</div>
-
-<div class="particles" id="particles"></div>
-<div class="flash" id="flash"></div>
-
-<!-- صوت (تقدر تغير الرابط لأي أغنية تبيها) -->
-<audio id="song" loop preload="auto">
-    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-</audio>
+<audio id="s" src="https://www.myinstants.com/media/sounds/shotgun.mp3"></audio>
 
 <script>
-// ========== إنشاء الجزيئات ==========
-const particlesContainer = document.getElementById('particles');
-for (let i = 0; i < 40; i++) {
-    const p = document.createElement('div');
-    p.className = 'particle';
-    p.style.left = Math.random() * 100 + 'vw';
-    p.style.animationDelay = Math.random() * 5 + 's';
-    p.style.animationDuration = (3 + Math.random() * 4) + 's';
-    p.style.width = p.style.height = (2 + Math.random() * 4) + 'px';
-    particlesContainer.appendChild(p);
-}
+    const c = document.getElementById('c'), ctx = c.getContext('2d');
+    c.width = window.innerWidth; c.height = window.innerHeight;
 
-// دخان تحت الأسطوانة
-const cylinderContainer = document.querySelector('.cylinder-container');
-for (let i = 0; i < 3; i++) {
-    const smoke = document.createElement('div');
-    smoke.className = 'smoke';
-    smoke.style.left = (30 + i * 40) + 'px';
-    smoke.style.bottom = '-30px';
-    smoke.style.animationDelay = i * 1.5 + 's';
-    cylinderContainer.appendChild(smoke);
-}
-
-// ========== الانتقال بين الواجهات ==========
-const screen1 = document.getElementById('screen1');
-const screen2 = document.getElementById('screen2');
-const btn1 = document.getElementById('btn1');
-const btn2 = document.getElementById('btn2');
-const song = document.getElementById('song');
-const flash = document.getElementById('flash');
-const playingText = document.getElementById('playingText');
-
-btn1.addEventListener('click', () => {
-    // فلاش أحمر
-    flash.classList.add('active');
-    setTimeout(() => flash.classList.remove('active'), 150);
-
-    // اهتزاز
-    document.body.classList.add('shake');
-    setTimeout(() => document.body.classList.remove('shake'), 400);
-
-    // إخفاء الواجهة الأولى
-    screen1.classList.add('hidden');
-    
-    setTimeout(() => {
-        screen1.style.display = 'none';
-        screen2.classList.add('active');
-    }, 800);
-});
-
-// ========== تشغيل الأغنية ==========
-let isPlaying = false;
-
-btn2.addEventListener('click', () => {
-    flash.classList.add('active');
-    setTimeout(() => flash.classList.remove('active'), 120);
-
-    document.body.classList.add('shake');
-    setTimeout(() => document.body.classList.remove('shake'), 400);
-
-    if (!isPlaying) {
-        song.volume = 0.85;
-        song.play().then(() => {
-            isPlaying = true;
-            playingText.classList.add('show');
-            btn2.textContent = 'شغالة يا وحش 🔥';
-            btn2.style.background = 'linear-gradient(135deg, #00aa44, #006622)';
-        }).catch(err => {
-            alert('المتصفح منع التشغيل التلقائي، اضغط مرة ثانية');
-        });
-    } else {
-        song.pause();
-        isPlaying = false;
-        playingText.classList.remove('show');
-        btn2.textContent = 'اضغط هنا';
-        btn2.style.background = 'linear-gradient(135deg, #ff0055, #990033)';
+    // إضاءات الخلفية التفاعلية
+    let particles = [];
+    function draw() {
+        ctx.fillStyle = 'rgba(0,0,0,0.1)';
+        ctx.fillRect(0,0,c.width,c.height);
+        
+        // إضاءة متغيرة
+        ctx.fillStyle = `hsl(${Math.random()*360}, 100%, 50%)`;
+        ctx.fillRect(Math.random()*c.width, Math.random()*c.height, 2, 2);
+        
+        requestAnimationFrame(draw);
     }
-});
+    draw();
 
-// تأثير إضافي: الأسطوانة تكبر شوي لما تضغط
-btn2.addEventListener('mousedown', () => {
-    document.getElementById('cylinder').style.transform = 'scale(1.08)';
-});
-btn2.addEventListener('mouseup', () => {
-    document.getElementById('cylinder').style.transform = 'scale(1)';
-});
-
-// منع الزر اليمين عشان ما يفسد الجو
-document.addEventListener('contextmenu', e => e.preventDefault());
+    // نظام إطلاق النار
+    window.addEventListener('mousedown', (e) => {
+        document.getElementById('s').play();
+        const p = document.createElement('div');
+        p.className = 'gun-point';
+        p.style.left = e.clientX + 'px';
+        p.style.top = e.clientY + 'px';
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 200);
+        
+        // شرارات
+        for(let i=0; i<20; i++) {
+            ctx.beginPath();
+            ctx.arc(e.clientX, e.clientY, 50, 0, Math.PI*2);
+            ctx.strokeStyle = 'yellow';
+            ctx.stroke();
+        }
+    });
 </script>
 </body>
 </html>
