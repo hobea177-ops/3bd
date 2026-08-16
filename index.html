@@ -1,0 +1,256 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+
+export default function Home() {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const [page, setPage] = useState<1 | 2>(1);
+  const [playing, setPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(1);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const updateProgress = () => {
+      if (!audio.duration) return;
+      setProgress((audio.currentTime / audio.duration) * 100);
+    };
+
+    const loaded = () => {
+      setDuration(audio.duration || 0);
+    };
+
+    const ended = () => {
+      setPlaying(false);
+      setProgress(0);
+    };
+
+    audio.addEventListener("timeupdate", updateProgress);
+    audio.addEventListener("loadedmetadata", loaded);
+    audio.addEventListener("ended", ended);
+
+    return () => {
+      audio.removeEventListener("timeupdate", updateProgress);
+      audio.removeEventListener("loadedmetadata", loaded);
+      audio.removeEventListener("ended", ended);
+    };
+  }, []);
+
+  const startMusic = async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    try {
+      if (audio.paused) {
+        await audio.play();
+        setPlaying(true);
+      } else {
+        audio.pause();
+        setPlaying(false);
+      }
+    } catch (error) {
+      console.error("Audio playback error:", error);
+    }
+  };
+
+  const changeProgress = (value: number) => {
+    const audio = audioRef.current;
+    if (!audio || !duration) return;
+
+    audio.currentTime = (value / 100) * duration;
+    setProgress(value);
+  };
+
+  const changeVolume = (value: number) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    audio.volume = value;
+    setVolume(value);
+  };
+
+  const formatTime = (seconds: number) => {
+    if (!Number.isFinite(seconds)) return "00:00";
+
+    const minutes = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+
+    return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(
+      2,
+      "0"
+    )}`;
+  };
+
+  return (
+    <main className={`site ${page === 2 ? "music-page" : "intro-page"}`}>
+      <audio
+        ref={audioRef}
+        src="/music/song.mp3"
+        preload="metadata"
+      />
+
+      <div className="ambient ambient-one" />
+      <div className="ambient ambient-two" />
+
+      {page === 1 && (
+        <section className="hero">
+          <div className="particles">
+            {Array.from({ length: 35 }).map((_, index) => (
+              <span
+                key={index}
+                className="particle"
+                style={{
+                  left: `${(index * 37) % 100}%`,
+                  top: `${(index * 61) % 100}%`,
+                  animationDelay: `${(index % 8) * 0.4}s`,
+                }}
+              />
+            ))}
+          </div>
+
+          <div className="hero-content">
+            <div className="badge">ABDULRAZZAQ</div>
+
+            <h1>
+              عبد الرزاق
+              <br />
+              <span>العنيف 🔥</span>
+            </h1>
+
+            <p>
+              مستعد تدخل عالم عبد الرزاق؟
+              <br />
+              اضغط وخلي الباقي على الأجواء.
+            </p>
+
+            <button
+              className="main-button"
+              onClick={() => setPage(2)}
+            >
+              <span>اضغط هنا</span>
+              <b>→</b>
+            </button>
+          </div>
+        </section>
+      )}
+
+      {page === 2 && (
+        <section className="player-section">
+          <button
+            className="back-button"
+            onClick={() => setPage(1)}
+          >
+            ← رجوع
+          </button>
+
+          <div className="title-area">
+            <div className="small-title">THE LEGEND</div>
+
+            <h2>
+              الك شييييخ
+              <br />
+              <span>عبددد ❤️‍🔥🔞</span>
+            </h2>
+
+            <p>شغّل الأغنية وخلي الأسطوانة تحچي.</p>
+          </div>
+
+          <div className={`record-wrap ${playing ? "is-playing" : ""}`}>
+            <div className="glow-ring" />
+
+            <div className="record">
+              <div className="record-lines" />
+              <div className="record-center">
+                <div className="center-label">
+                  <span>عبد</span>
+                  <small>RAZZAQ</small>
+                </div>
+              </div>
+              <div className="record-hole" />
+            </div>
+
+            <div className="needle">
+              <div className="needle-arm" />
+              <div className="needle-head" />
+            </div>
+          </div>
+
+          <div className="player-card">
+            <div className="track-info">
+              <div>
+                <span>NOW PLAYING</span>
+                <strong>عبد الرزاق 🎵</strong>
+              </div>
+
+              <div className="equalizer">
+                {Array.from({ length: 12 }).map((_, index) => (
+                  <i
+                    key={index}
+                    className={playing ? "active" : ""}
+                    style={{
+                      animationDelay: `${index * 0.08}s`,
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="progress-area">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={progress}
+                onChange={(event) =>
+                  changeProgress(Number(event.target.value))
+                }
+              />
+
+              <div className="time">
+                <span>
+                  {formatTime(
+                    (progress / 100) * duration
+                  )}
+                </span>
+
+                <span>{formatTime(duration)}</span>
+              </div>
+            </div>
+
+            <button
+              className={`play-button ${playing ? "playing" : ""}`}
+              onClick={startMusic}
+              aria-label={playing ? "إيقاف الأغنية" : "تشغيل الأغنية"}
+            >
+              {playing ? "❚❚" : "▶"}
+            </button>
+
+            <div className="volume">
+              <span>🔊</span>
+
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={volume}
+                onChange={(event) =>
+                  changeVolume(Number(event.target.value))
+                }
+              />
+            </div>
+          </div>
+
+          <div className="spark spark-one" />
+          <div className="spark spark-two" />
+          <div className="spark spark-three" />
+          <div className="spark spark-four" />
+        </section>
+      )}
+    </main>
+  );
+}
