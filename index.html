@@ -1,1751 +1,2216 @@
-"use client";
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#050505">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-import React, {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+  <title>همام</title>
 
-/* =========================================================
-   HAMMAM — ONE FILE MUSIC EXPERIENCE
-   ========================================================= */
-
-const AUDIO_SRC = "/music/song.mp3";
-
-type Particle = {
-  id: number;
-  x: number;
-  y: number;
-  size: number;
-  delay: number;
-  duration: number;
-};
-
-type Spark = {
-  id: number;
-  x: number;
-  y: number;
-  size: number;
-  delay: number;
-  duration: number;
-};
-
-export default function Page() {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const sourceRef =
-    useRef<MediaElementAudioSourceNode | null>(null);
-  const animationRef = useRef<number | null>(null);
-
-  const [screen, setScreen] = useState<"home" | "music">(
-    "home"
-  );
-
-  const [playing, setPlaying] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-  const [error, setError] = useState("");
-
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [progress, setProgress] = useState(0);
-
-  const [volume, setVolume] = useState(0.9);
-  const [muted, setMuted] = useState(false);
-
-  const [intensity, setIntensity] = useState(0);
-  const [bass, setBass] = useState(0);
-  const [treble, setTreble] = useState(0);
-
-  const [particles] = useState<Particle[]>(() =>
-    Array.from({ length: 100 }, (_, index) => ({
-      id: index,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: 1 + Math.random() * 4,
-      delay: Math.random() * 8,
-      duration: 5 + Math.random() * 8,
-    }))
-  );
-
-  const [sparks] = useState<Spark[]>(() =>
-    Array.from({ length: 70 }, (_, index) => ({
-      id: index,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: 1 + Math.random() * 5,
-      delay: Math.random() * 5,
-      duration: 2 + Math.random() * 4,
-    }))
-  );
-
-  const formatTime = (seconds: number) => {
-    if (!Number.isFinite(seconds) || seconds < 0) {
-      return "00:00";
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+      padding: 0;
+      background: #030303;
+      color: white;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+      overflow-x: hidden;
+    }
 
-    return `${String(minutes).padStart(2, "0")}:${String(
-      remainingSeconds
-    ).padStart(2, "0")}`;
-  };
+    body {
+      min-height: 100vh;
+    }
 
-  const setupAnalyzer = useCallback(() => {
-    const audio = audioRef.current;
+    button,
+    input {
+      font: inherit;
+    }
 
-    if (!audio) return;
+    button {
+      cursor: pointer;
+    }
 
-    try {
-      if (!audioContextRef.current) {
-        const AudioContextConstructor =
+    /* =========================
+       MAIN
+    ========================= */
+
+    .app {
+      position: relative;
+      width: 100%;
+      min-height: 100vh;
+      overflow: hidden;
+      background:
+        radial-gradient(
+          circle at 50% 45%,
+          rgba(255,255,255,.08),
+          transparent 25%
+        ),
+        radial-gradient(
+          circle at 10% 90%,
+          rgba(255,255,255,.035),
+          transparent 30%
+        ),
+        #030303;
+    }
+
+    .app::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .04;
+      z-index: 50;
+      background:
+        repeating-linear-gradient(
+          0deg,
+          rgba(255,255,255,.1) 0px,
+          rgba(255,255,255,.1) 1px,
+          transparent 1px,
+          transparent 4px
+        );
+    }
+
+    .ambient {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      filter: blur(90px);
+      opacity: .15;
+      z-index: 0;
+    }
+
+    .ambient.one {
+      width: 330px;
+      height: 330px;
+      background: white;
+      left: -180px;
+      top: 10%;
+      animation: ambientOne 10s ease-in-out infinite;
+    }
+
+    .ambient.two {
+      width: 320px;
+      height: 320px;
+      background: #888;
+      right: -180px;
+      bottom: 5%;
+      animation: ambientTwo 12s ease-in-out infinite;
+    }
+
+    /* =========================
+       PARTICLES
+    ========================= */
+
+    #particles,
+    #sparks {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,.55);
+      box-shadow: 0 0 10px rgba(255,255,255,.4);
+      animation: particleMove var(--time) ease-in-out var(--delay) infinite;
+    }
+
+    .spark {
+      position: absolute;
+      border-radius: 50%;
+      background: white;
+      box-shadow:
+        0 0 8px white,
+        0 0 20px rgba(255,255,255,.7);
+      animation: sparkMove var(--time) ease-out var(--delay) infinite;
+    }
+
+    /* =========================
+       HOME
+    ========================= */
+
+    .screen {
+      position: relative;
+      z-index: 5;
+      min-height: 100vh;
+    }
+
+    .home {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 30px 20px;
+      text-align: center;
+    }
+
+    .home-inner {
+      width: min(700px, 100%);
+    }
+
+    .top-line {
+      width: 110px;
+      height: 1px;
+      margin: 0 auto 30px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        white,
+        transparent
+      );
+      box-shadow: 0 0 20px rgba(255,255,255,.5);
+    }
+
+    .mini-title {
+      color: rgba(255,255,255,.45);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 9px;
+      direction: ltr;
+      margin-bottom: 25px;
+    }
+
+    .home h1 {
+      margin: 0;
+      font-size: clamp(75px, 18vw, 160px);
+      line-height: .9;
+      font-weight: 900;
+      letter-spacing: -7px;
+      text-shadow:
+        0 0 35px rgba(255,255,255,.12);
+    }
+
+    .home-text {
+      margin: 35px auto;
+      max-width: 500px;
+      color: rgba(255,255,255,.42);
+      font-size: 14px;
+      line-height: 2;
+    }
+
+    .enter-button {
+      position: relative;
+      min-width: 190px;
+      padding: 17px 38px;
+      border: 1px solid rgba(255,255,255,.28);
+      border-radius: 999px;
+      background:
+        linear-gradient(
+          145deg,
+          rgba(255,255,255,.13),
+          rgba(255,255,255,.025)
+        );
+      color: white;
+      font-size: 16px;
+      font-weight: 800;
+      overflow: hidden;
+      transition:
+        transform .25s ease,
+        border-color .25s ease,
+        box-shadow .25s ease;
+    }
+
+    .enter-button::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -130%;
+      width: 100%;
+      height: 100%;
+      background:
+        linear-gradient(
+          90deg,
+          transparent,
+          rgba(255,255,255,.25),
+          transparent
+        );
+      transition: left .6s ease;
+    }
+
+    .enter-button:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255,255,255,.8);
+      box-shadow: 0 0 35px rgba(255,255,255,.1);
+    }
+
+    .enter-button:hover::before {
+      left: 130%;
+    }
+
+    .enter-button:active {
+      transform: scale(.96);
+    }
+
+    /* =========================
+       MUSIC SCREEN
+    ========================= */
+
+    .music {
+      display: none;
+      min-height: 100vh;
+      padding:
+        75px
+        18px
+        40px;
+      align-items: center;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .music.active {
+      display: flex;
+    }
+
+    .home.hidden {
+      display: none;
+    }
+
+    .back-button {
+      position: fixed;
+      z-index: 100;
+      top: 20px;
+      left: 20px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.045);
+      color: rgba(255,255,255,.7);
+      border-radius: 999px;
+      padding: 10px 18px;
+      transition: .2s ease;
+    }
+
+    .back-button:hover {
+      color: white;
+      border-color: rgba(255,255,255,.5);
+    }
+
+    .music-heading {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      margin-bottom: 5px;
+    }
+
+    .music-heading small {
+      display: block;
+      color: rgba(255,255,255,.4);
+      letter-spacing: 8px;
+      font-size: 9px;
+      direction: ltr;
+      margin-bottom: 13px;
+    }
+
+    .music-heading h2 {
+      margin: 0;
+      font-size: clamp(45px, 10vw, 80px);
+      line-height: .95;
+      font-weight: 900;
+    }
+
+    .music-heading p {
+      color: rgba(255,255,255,.35);
+      font-size: 12px;
+      margin: 15px 0 0;
+    }
+
+    /* =========================
+       RECORD
+    ========================= */
+
+    .record-stage {
+      position: relative;
+      width: min(430px, 90vw);
+      aspect-ratio: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: -5px auto 10px;
+    }
+
+    .record-glow {
+      position: absolute;
+      width: 70%;
+      height: 70%;
+      border-radius: 50%;
+      background: rgba(255,255,255,.08);
+      filter: blur(65px);
+      transform: scale(1);
+      transition: transform .08s linear;
+    }
+
+    .orbit {
+      position: absolute;
+      width: 96%;
+      height: 96%;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.1);
+      animation: orbit 2.8s ease-in-out infinite;
+    }
+
+    .orbit::before,
+    .orbit::after {
+      content: "";
+      position: absolute;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 0 15px white;
+    }
+
+    .orbit::before {
+      top: -4px;
+      left: 50%;
+    }
+
+    .orbit::after {
+      right: 18%;
+      bottom: -4px;
+    }
+
+    .record {
+      position: relative;
+      width: 77%;
+      height: 77%;
+      border-radius: 50%;
+      background:
+        radial-gradient(
+          circle,
+          #444 0%,
+          #161616 7%,
+          #050505 14%,
+          #171717 25%,
+          #030303 55%,
+          #121212 75%,
+          #020202 100%
+        );
+      border: 2px solid rgba(255,255,255,.1);
+      box-shadow:
+        0 35px 90px rgba(0,0,0,.8),
+        0 0 70px rgba(255,255,255,.07),
+        inset 0 0 60px rgba(255,255,255,.03);
+      animation: spin 6s linear infinite;
+      animation-play-state: paused;
+      transition: transform .08s linear;
+    }
+
+    .record.playing {
+      animation-play-state: running;
+    }
+
+    .record-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.055);
+    }
+
+    .ring1 {
+      inset: 8%;
+    }
+
+    .ring2 {
+      inset: 15%;
+    }
+
+    .ring3 {
+      inset: 23%;
+    }
+
+    .ring4 {
+      inset: 30%;
+    }
+
+    .ring5 {
+      inset: 37%;
+    }
+
+    .record-label {
+      position: absolute;
+      width: 30%;
+      height: 30%;
+      left: 35%;
+      top: 35%;
+      border-radius: 50%;
+      background:
+        radial-gradient(
+          circle,
+          #eee,
+          #777 52%,
+          #222
+        );
+      border: 2px solid rgba(255,255,255,.15);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 5;
+      box-shadow: 0 0 30px rgba(255,255,255,.08);
+    }
+
+    .record-label strong {
+      color: #080808;
+      font-size: 13px;
+    }
+
+    .record-label span {
+      color: #151515;
+      font-size: 5px;
+      letter-spacing: 2px;
+      margin-top: 3px;
+      direction: ltr;
+    }
+
+    .record-hole {
+      position: absolute;
+      z-index: 7;
+      left: calc(50% - 4px);
+      top: calc(50% - 4px);
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #050505;
+      border: 1px solid rgba(255,255,255,.25);
+    }
+
+    /* =========================
+       NEEDLE
+    ========================= */
+
+    .needle {
+      position: absolute;
+      z-index: 15;
+      right: 4%;
+      top: 4%;
+      width: 26%;
+      height: 47%;
+      transform: rotate(8deg);
+      transform-origin: 80% 0;
+      pointer-events: none;
+    }
+
+    .needle-arm {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 7px;
+      height: 86%;
+      border-radius: 10px;
+      background:
+        linear-gradient(
+          90deg,
+          #444,
+          #eee,
+          #555
+        );
+    }
+
+    .needle-head {
+      position: absolute;
+      right: -5px;
+      bottom: 5%;
+      width: 18px;
+      height: 24px;
+      border-radius: 4px;
+      background: #151515;
+      border: 1px solid #777;
+      transform: rotate(-20deg);
+    }
+
+    .needle-head::after {
+      content: "";
+      position: absolute;
+      left: 6px;
+      bottom: -5px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 0 10px white;
+    }
+
+    /* =========================
+       PLAYER
+    ========================= */
+
+    .player {
+      position: relative;
+      z-index: 20;
+      width: min(610px, 96vw);
+      padding: 21px;
+      border-radius: 23px;
+      border: 1px solid rgba(255,255,255,.1);
+      background:
+        linear-gradient(
+          145deg,
+          rgba(255,255,255,.07),
+          rgba(255,255,255,.018)
+        );
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      box-shadow:
+        0 30px 100px rgba(0,0,0,.55),
+        inset 0 1px rgba(255,255,255,.05);
+    }
+
+    .track-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 18px;
+    }
+
+    .track-name {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .track-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 13px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background:
+        linear-gradient(
+          145deg,
+          #777,
+          #222
+        );
+      border: 1px solid rgba(255,255,255,.15);
+      font-weight: 900;
+    }
+
+    .track-name strong {
+      display: block;
+      font-size: 14px;
+    }
+
+    .track-name span {
+      display: block;
+      color: rgba(255,255,255,.3);
+      font-size: 8px;
+      letter-spacing: 2px;
+      direction: ltr;
+      margin-top: 4px;
+    }
+
+    /* =========================
+       EQUALIZER
+    ========================= */
+
+    .equalizer {
+      height: 32px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .equalizer i {
+      width: 3px;
+      height: 7px;
+      border-radius: 20px;
+      background: white;
+    }
+
+    .equalizer.active i {
+      animation: eq .6s ease-in-out infinite alternate;
+    }
+
+    .equalizer i:nth-child(1) { animation-delay: .00s; }
+    .equalizer i:nth-child(2) { animation-delay: .06s; }
+    .equalizer i:nth-child(3) { animation-delay: .12s; }
+    .equalizer i:nth-child(4) { animation-delay: .18s; }
+    .equalizer i:nth-child(5) { animation-delay: .24s; }
+    .equalizer i:nth-child(6) { animation-delay: .30s; }
+    .equalizer i:nth-child(7) { animation-delay: .36s; }
+    .equalizer i:nth-child(8) { animation-delay: .42s; }
+    .equalizer i:nth-child(9) { animation-delay: .48s; }
+    .equalizer i:nth-child(10) { animation-delay: .54s; }
+    .equalizer i:nth-child(11) { animation-delay: .60s; }
+    .equalizer i:nth-child(12) { animation-delay: .66s; }
+
+    /* =========================
+       RANGE
+    ========================= */
+
+    .progress {
+      width: 100%;
+      height: 6px;
+      appearance: none;
+      -webkit-appearance: none;
+      border-radius: 99px;
+      outline: none;
+      cursor: pointer;
+      background:
+        linear-gradient(
+          90deg,
+          white 0%,
+          white var(--progress),
+          rgba(255,255,255,.1) var(--progress),
+          rgba(255,255,255,.1) 100%
+        );
+    }
+
+    .progress::-webkit-slider-thumb {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: white;
+      border: 3px solid #444;
+      box-shadow: 0 0 12px rgba(255,255,255,.5);
+    }
+
+    .progress::-moz-range-thumb {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: white;
+      border: 3px solid #444;
+    }
+
+    .time-row {
+      display: flex;
+      justify-content: space-between;
+      direction: ltr;
+      margin-top: 8px;
+      color: rgba(255,255,255,.35);
+      font-size: 10px;
+    }
+
+    /* =========================
+       CONTROLS
+    ========================= */
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .control {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      color: white;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.12);
+      transition: .2s ease;
+    }
+
+    .control:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255,255,255,.45);
+    }
+
+    .play {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      border: 0;
+      background:
+        radial-gradient(
+          circle at 35% 30%,
+          white,
+          #aaa 55%,
+          #555
+        );
+      color: #050505;
+      font-size: 21px;
+      font-weight: 900;
+      padding-left: 3px;
+      box-shadow:
+        0 0 30px rgba(255,255,255,.2);
+      transition: .2s ease;
+    }
+
+    .play:hover {
+      transform: scale(1.07);
+      box-shadow:
+        0 0 45px rgba(255,255,255,.35);
+    }
+
+    .play:active {
+      transform: scale(.94);
+    }
+
+    /* =========================
+       BOTTOM
+    ========================= */
+
+    .bottom-row {
+      margin-top: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      direction: ltr;
+    }
+
+    .volume-area {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .volume-button {
+      border: 0;
+      background: transparent;
+      color: white;
+      font-size: 15px;
+      padding: 5px;
+    }
+
+    .volume {
+      width: 120px;
+      height: 4px;
+      appearance: none;
+      -webkit-appearance: none;
+      border-radius: 99px;
+      outline: none;
+      background:
+        linear-gradient(
+          90deg,
+          white 0%,
+          white var(--volume),
+          rgba(255,255,255,.1) var(--volume),
+          rgba(255,255,255,.1) 100%
+        );
+    }
+
+    .volume::-webkit-slider-thumb {
+      appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: white;
+    }
+
+    .volume::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: white;
+    }
+
+    .status {
+      color: rgba(255,255,255,.35);
+      font-size: 10px;
+    }
+
+    .error {
+      text-align: center;
+      color: rgba(255,255,255,.55);
+      font-size: 11px;
+      margin-top: 13px;
+    }
+
+    /* =========================
+       ANIMATIONS
+    ========================= */
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes orbit {
+      0%,
+      100% {
+        transform: scale(.98);
+        opacity: .35;
+      }
+
+      50% {
+        transform: scale(1.02);
+        opacity: .75;
+      }
+    }
+
+    @keyframes eq {
+      from {
+        transform: scaleY(.3);
+      }
+
+      to {
+        transform: scaleY(2.6);
+      }
+    }
+
+    @keyframes particleMove {
+      0% {
+        transform:
+          translateY(30px)
+          translateX(0)
+          scale(.4);
+        opacity: 0;
+      }
+
+      20% {
+        opacity: .8;
+      }
+
+      50% {
+        transform:
+          translateY(-35px)
+          translateX(25px)
+          scale(1);
+      }
+
+      80% {
+        opacity: .3;
+      }
+
+      100% {
+        transform:
+          translateY(-130px)
+          translateX(-20px)
+          scale(.3);
+        opacity: 0;
+      }
+    }
+
+    @keyframes sparkMove {
+      0% {
+        transform:
+          translate(0,0)
+          scale(0);
+        opacity: 0;
+      }
+
+      20% {
+        opacity: 1;
+      }
+
+      100% {
+        transform:
+          translate(50px,-140px)
+          scale(0);
+        opacity: 0;
+      }
+    }
+
+    @keyframes ambientOne {
+      0%,
+      100% {
+        transform: translate(0,0);
+      }
+
+      50% {
+        transform: translate(100px,-50px);
+      }
+    }
+
+    @keyframes ambientTwo {
+      0%,
+      100% {
+        transform: translate(0,0);
+      }
+
+      50% {
+        transform: translate(-90px,60px);
+      }
+    }
+
+    /* =========================
+       MOBILE
+    ========================= */
+
+    @media (max-width: 600px) {
+      .home h1 {
+        letter-spacing: -4px;
+      }
+
+      .music {
+        padding:
+          72px
+          10px
+          30px;
+      }
+
+      .record-stage {
+        width: min(380px, 94vw);
+      }
+
+      .player {
+        padding: 17px;
+        border-radius: 20px;
+      }
+
+      .equalizer {
+        display: none;
+      }
+
+      .bottom-row {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .volume-area {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .volume {
+        width: 150px;
+      }
+
+      .back-button {
+        top: 14px;
+        left: 14px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app">
+
+    <div class="ambient one"></div>
+    <div class="ambient two"></div>
+
+    <div id="particles"></div>
+    <div id="sparks"></div>
+
+    <!-- =========================
+         HOME
+    ========================= -->
+
+    <section
+      id="home"
+      class="screen home"
+    >
+      <div class="home-inner">
+
+        <div class="top-line"></div>
+
+        <div class="mini-title">
+          HAMMAM
+        </div>
+
+        <h1>
+          همام
+        </h1>
+
+        <div class="home-text">
+          تجربة موسيقية تفاعلية بتصميم
+          هادئ ومؤثرات صوتية وبصرية.
+          <br>
+          اضغط للانتقال إلى المشغل.
+        </div>
+
+        <button
+          id="enterButton"
+          class="enter-button"
+        >
+          اضغط هنا
+        </button>
+
+      </div>
+    </section>
+
+    <!-- =========================
+         MUSIC
+    ========================= -->
+
+    <section
+      id="music"
+      class="screen music"
+    >
+
+      <button
+        id="backButton"
+        class="back-button"
+      >
+        رجوع
+      </button>
+
+      <div class="music-heading">
+
+        <small>
+          HAMMAM RECORD
+        </small>
+
+        <h2>
+          همام
+        </h2>
+
+        <p>
+          اضغط تشغيل للاستماع
+        </p>
+
+      </div>
+
+      <!-- RECORD -->
+
+      <div class="record-stage">
+
+        <div
+          id="recordGlow"
+          class="record-glow"
+        ></div>
+
+        <div class="orbit"></div>
+
+        <div
+          id="record"
+          class="record"
+        >
+
+          <div class="record-ring ring1"></div>
+          <div class="record-ring ring2"></div>
+          <div class="record-ring ring3"></div>
+          <div class="record-ring ring4"></div>
+          <div class="record-ring ring5"></div>
+
+          <div class="record-label">
+            <strong>
+              همام
+            </strong>
+
+            <span>
+              HAMMAM
+            </span>
+          </div>
+
+          <div class="record-hole"></div>
+
+        </div>
+
+        <div class="needle">
+
+          <div class="needle-arm"></div>
+
+          <div class="needle-head"></div>
+
+        </div>
+
+      </div>
+
+      <!-- PLAYER -->
+
+      <div class="player">
+
+        <div class="track-row">
+
+          <div class="track-name">
+
+            <div class="track-icon">
+              H
+            </div>
+
+            <div>
+
+              <strong>
+                همام
+              </strong>
+
+              <span>
+                NOW PLAYING
+              </span>
+
+            </div>
+
+          </div>
+
+          <div
+            id="equalizer"
+            class="equalizer"
+          >
+            <i></i>
+            <i></i>
+            <i></i>
+            <i></i>
+            <i></i>
+            <i></i>
+            <i></i>
+            <i></i>
+            <i></i>
+            <i></i>
+            <i></i>
+            <i></i>
+          </div>
+
+        </div>
+
+        <input
+          id="progress"
+          class="progress"
+          type="range"
+          min="0"
+          max="100"
+          value="0"
+          step="0.01"
+        >
+
+        <div class="time-row">
+
+          <span id="currentTime">
+            00:00
+          </span>
+
+          <span id="duration">
+            00:00
+          </span>
+
+        </div>
+
+        <div class="controls">
+
+          <button
+            id="restartButton"
+            class="control"
+            aria-label="إعادة"
+          >
+            ↺
+          </button>
+
+          <button
+            id="playButton"
+            class="play"
+            aria-label="تشغيل"
+          >
+            ▶
+          </button>
+
+          <button
+            id="muteButton"
+            class="control"
+            aria-label="كتم"
+          >
+            V
+          </button>
+
+        </div>
+
+        <div class="bottom-row">
+
+          <div class="volume-area">
+
+            <button
+              id="volumeButton"
+              class="volume-button"
+            >
+              V
+            </button>
+
+            <input
+              id="volume"
+              class="volume"
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value="0.9"
+            >
+
+          </div>
+
+          <div
+            id="status"
+            class="status"
+          >
+            جاهز للتشغيل
+          </div>
+
+        </div>
+
+        <div
+          id="error"
+          class="error"
+        ></div>
+
+      </div>
+
+    </section>
+
+  </div>
+
+  <!-- =========================
+       AUDIO
+  ========================= -->
+
+  <audio
+    id="audio"
+    src="./song.mp3"
+    preload="metadata"
+    crossorigin="anonymous"
+  ></audio>
+
+  <script>
+    /* =====================================================
+       HAMMAM MUSIC EXPERIENCE
+    ===================================================== */
+
+    const audio =
+      document.getElementById("audio");
+
+    const home =
+      document.getElementById("home");
+
+    const music =
+      document.getElementById("music");
+
+    const enterButton =
+      document.getElementById("enterButton");
+
+    const backButton =
+      document.getElementById("backButton");
+
+    const playButton =
+      document.getElementById("playButton");
+
+    const restartButton =
+      document.getElementById("restartButton");
+
+    const muteButton =
+      document.getElementById("muteButton");
+
+    const volumeButton =
+      document.getElementById("volumeButton");
+
+    const progress =
+      document.getElementById("progress");
+
+    const volume =
+      document.getElementById("volume");
+
+    const currentTime =
+      document.getElementById("currentTime");
+
+    const duration =
+      document.getElementById("duration");
+
+    const status =
+      document.getElementById("status");
+
+    const error =
+      document.getElementById("error");
+
+    const record =
+      document.getElementById("record");
+
+    const recordGlow =
+      document.getElementById("recordGlow");
+
+    const equalizer =
+      document.getElementById("equalizer");
+
+    const particles =
+      document.getElementById("particles");
+
+    const sparks =
+      document.getElementById("sparks");
+
+    /* =====================================================
+       STATE
+    ===================================================== */
+
+    let audioContext = null;
+    let analyser = null;
+    let audioSource = null;
+    let animationFrame = null;
+
+    let isPlaying = false;
+    let isMuted = false;
+
+    /* =====================================================
+       PARTICLES
+    ===================================================== */
+
+    function createParticles() {
+
+      const amount =
+        window.innerWidth < 600
+          ? 55
+          : 100;
+
+      for (
+        let i = 0;
+        i < amount;
+        i++
+      ) {
+
+        const element =
+          document.createElement("span");
+
+        element.className =
+          "particle";
+
+        const size =
+          1 +
+          Math.random() * 4;
+
+        const left =
+          Math.random() * 100;
+
+        const top =
+          Math.random() * 100;
+
+        const delay =
+          Math.random() * 8;
+
+        const time =
+          5 +
+          Math.random() * 8;
+
+        element.style.left =
+          left + "%";
+
+        element.style.top =
+          top + "%";
+
+        element.style.width =
+          size + "px";
+
+        element.style.height =
+          size + "px";
+
+        element.style.setProperty(
+          "--delay",
+          delay + "s"
+        );
+
+        element.style.setProperty(
+          "--time",
+          time + "s"
+        );
+
+        particles.appendChild(
+          element
+        );
+      }
+    }
+
+    function createSparks() {
+
+      const amount =
+        window.innerWidth < 600
+          ? 35
+          : 70;
+
+      for (
+        let i = 0;
+        i < amount;
+        i++
+      ) {
+
+        const element =
+          document.createElement("span");
+
+        element.className =
+          "spark";
+
+        const size =
+          1 +
+          Math.random() * 4;
+
+        element.style.left =
+          Math.random() * 100 + "%";
+
+        element.style.top =
+          Math.random() * 100 + "%";
+
+        element.style.width =
+          size + "px";
+
+        element.style.height =
+          size + "px";
+
+        element.style.setProperty(
+          "--delay",
+          Math.random() * 5 + "s"
+        );
+
+        element.style.setProperty(
+          "--time",
+          2 + Math.random() * 4 + "s"
+        );
+
+        sparks.appendChild(
+          element
+        );
+      }
+    }
+
+    createParticles();
+    createSparks();
+
+    /* =====================================================
+       FORMAT TIME
+    ===================================================== */
+
+    function formatTime(seconds) {
+
+      if (
+        !Number.isFinite(seconds) ||
+        seconds < 0
+      ) {
+        return "00:00";
+      }
+
+      const minutes =
+        Math.floor(seconds / 60);
+
+      const secondsPart =
+        Math.floor(seconds % 60);
+
+      return (
+        String(minutes).padStart(2, "0") +
+        ":" +
+        String(secondsPart).padStart(2, "0")
+      );
+    }
+
+    /* =====================================================
+       AUDIO ANALYZER
+    ===================================================== */
+
+    function setupAudioAnalyzer() {
+
+      if (audioContext) {
+
+        if (
+          audioContext.state ===
+          "suspended"
+        ) {
+          audioContext.resume();
+        }
+
+        return;
+      }
+
+      try {
+
+        const AudioContextClass =
           window.AudioContext ||
-          (
-            window as typeof window & {
-              webkitAudioContext?: typeof AudioContext;
-            }
-          ).webkitAudioContext;
+          window.webkitAudioContext;
 
-        if (!AudioContextConstructor) {
+        if (!AudioContextClass) {
           return;
         }
 
-        const context = new AudioContextConstructor();
+        audioContext =
+          new AudioContextClass();
 
-        const analyser = context.createAnalyser();
+        analyser =
+          audioContext.createAnalyser();
 
         analyser.fftSize = 256;
-        analyser.smoothingTimeConstant = 0.82;
 
-        const source =
-          context.createMediaElementSource(audio);
+        analyser.smoothingTimeConstant =
+          0.82;
 
-        source.connect(analyser);
-        analyser.connect(context.destination);
+        audioSource =
+          audioContext.createMediaElementSource(
+            audio
+          );
 
-        audioContextRef.current = context;
-        analyserRef.current = analyser;
-        sourceRef.current = source;
-      }
-
-      if (
-        audioContextRef.current &&
-        audioContextRef.current.state === "suspended"
-      ) {
-        void audioContextRef.current.resume();
-      }
-    } catch (err) {
-      console.warn(
-        "Audio analyzer initialization failed:",
-        err
-      );
-    }
-  }, []);
-
-  const analyzeAudio = useCallback(() => {
-    const analyser = analyserRef.current;
-
-    if (!analyser || !playing) {
-      setIntensity(0);
-      setBass(0);
-      setTreble(0);
-      return;
-    }
-
-    const data = new Uint8Array(
-      analyser.frequencyBinCount
-    );
-
-    analyser.getByteFrequencyData(data);
-
-    let total = 0;
-
-    for (let index = 0; index < data.length; index++) {
-      total += data[index];
-    }
-
-    const average =
-      data.length > 0
-        ? total / data.length
-        : 0;
-
-    const bassEnd = Math.max(
-      1,
-      Math.floor(data.length * 0.12)
-    );
-
-    let bassTotal = 0;
-
-    for (let index = 0; index < bassEnd; index++) {
-      bassTotal += data[index];
-    }
-
-    const bassAverage =
-      bassTotal / bassEnd;
-
-    const trebleStart = Math.floor(
-      data.length * 0.65
-    );
-
-    let trebleTotal = 0;
-
-    for (
-      let index = trebleStart;
-      index < data.length;
-      index++
-    ) {
-      trebleTotal += data[index];
-    }
-
-    const trebleCount =
-      data.length - trebleStart;
-
-    const trebleAverage =
-      trebleCount > 0
-        ? trebleTotal / trebleCount
-        : 0;
-
-    setIntensity(
-      Math.min(1, average / 150)
-    );
-
-    setBass(
-      Math.min(1, bassAverage / 190)
-    );
-
-    setTreble(
-      Math.min(1, trebleAverage / 190)
-    );
-
-    animationRef.current =
-      requestAnimationFrame(analyzeAudio);
-  }, [playing]);
-
-  useEffect(() => {
-    if (playing) {
-      animationRef.current =
-        requestAnimationFrame(analyzeAudio);
-    }
-
-    return () => {
-      if (animationRef.current !== null) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [playing, analyzeAudio]);
-
-  useEffect(() => {
-    const audio = audioRef.current;
-
-    if (!audio) return;
-
-    const handleLoadedMetadata = () => {
-      setLoaded(true);
-      setDuration(
-        Number.isFinite(audio.duration)
-          ? audio.duration
-          : 0
-      );
-      setError("");
-    };
-
-    const handleTimeUpdate = () => {
-      const current = audio.currentTime;
-
-      setCurrentTime(current);
-
-      if (
-        Number.isFinite(audio.duration) &&
-        audio.duration > 0
-      ) {
-        setProgress(
-          (current / audio.duration) * 100
+        audioSource.connect(
+          analyser
         );
+
+        analyser.connect(
+          audioContext.destination
+        );
+
+      } catch (e) {
+
+        console.warn(
+          "Audio analyzer unavailable",
+          e
+        );
+
       }
-    };
+    }
 
-    const handleEnded = () => {
-      setPlaying(false);
-      setCurrentTime(0);
-      setProgress(0);
-    };
+    /* =====================================================
+       VISUALIZER
+    ===================================================== */
 
-    const handleError = () => {
-      setLoaded(false);
-      setPlaying(false);
-      setError(
-        "تعذر تحميل ملف الصوت. تأكد من مسار الملف."
+    function visualize() {
+
+      if (
+        !analyser ||
+        !isPlaying
+      ) {
+        recordGlow.style.transform =
+          "scale(1)";
+
+        return;
+      }
+
+      const data =
+        new Uint8Array(
+          analyser.frequencyBinCount
+        );
+
+      analyser.getByteFrequencyData(
+        data
       );
-    };
+
+      let total = 0;
+
+      for (
+        let i = 0;
+        i < data.length;
+        i++
+      ) {
+        total += data[i];
+      }
+
+      const average =
+        data.length
+          ? total / data.length
+          : 0;
+
+      const bassEnd =
+        Math.max(
+          1,
+          Math.floor(
+            data.length * 0.12
+          )
+        );
+
+      let bassTotal = 0;
+
+      for (
+        let i = 0;
+        i < bassEnd;
+        i++
+      ) {
+        bassTotal += data[i];
+      }
+
+      const bass =
+        bassTotal / bassEnd;
+
+      const intensity =
+        Math.min(
+          1,
+          average / 150
+        );
+
+      const bassIntensity =
+        Math.min(
+          1,
+          bass / 180
+        );
+
+      const recordScale =
+        1 +
+        intensity * 0.035 +
+        bassIntensity * 0.025;
+
+      record.style.transform =
+        "scale(" +
+        recordScale +
+        ")";
+
+      recordGlow.style.transform =
+        "scale(" +
+        (
+          1 +
+          bassIntensity * 0.35
+        ) +
+        ")";
+
+      recordGlow.style.background =
+        "rgba(255,255,255," +
+        (
+          0.06 +
+          intensity * 0.25
+        ) +
+        ")";
+
+      animationFrame =
+        requestAnimationFrame(
+          visualize
+        );
+    }
+
+    /* =====================================================
+       ENTER
+    ===================================================== */
+
+    enterButton.addEventListener(
+      "click",
+      function () {
+
+        home.classList.add(
+          "hidden"
+        );
+
+        music.classList.add(
+          "active"
+        );
+
+        window.scrollTo({
+          top: 0,
+          behavior: "instant"
+        });
+
+      }
+    );
+
+    /* =====================================================
+       BACK
+    ===================================================== */
+
+    backButton.addEventListener(
+      "click",
+      function () {
+
+        audio.pause();
+
+        isPlaying = false;
+
+        record.classList.remove(
+          "playing"
+        );
+
+        equalizer.classList.remove(
+          "active"
+        );
+
+        playButton.textContent =
+          "▶";
+
+        status.textContent =
+          "جاهز للتشغيل";
+
+        music.classList.remove(
+          "active"
+        );
+
+        home.classList.remove(
+          "hidden"
+        );
+
+      }
+    );
+
+    /* =====================================================
+       PLAY / PAUSE
+    ===================================================== */
+
+    playButton.addEventListener(
+      "click",
+      async function () {
+
+        setupAudioAnalyzer();
+
+        try {
+
+          if (audio.paused) {
+
+            await audio.play();
+
+            isPlaying = true;
+
+            record.classList.add(
+              "playing"
+            );
+
+            equalizer.classList.add(
+              "active"
+            );
+
+            playButton.textContent =
+              "❚❚";
+
+            status.textContent =
+              "يعمل الآن";
+
+            error.textContent = "";
+
+            if (
+              audioContext &&
+              audioContext.state ===
+                "suspended"
+            ) {
+              await audioContext.resume();
+            }
+
+            if (
+              animationFrame === null
+            ) {
+              visualize();
+            }
+
+          } else {
+
+            audio.pause();
+
+            isPlaying = false;
+
+            record.classList.remove(
+              "playing"
+            );
+
+            equalizer.classList.remove(
+              "active"
+            );
+
+            playButton.textContent =
+              "▶";
+
+            status.textContent =
+              "متوقف مؤقتاً";
+
+            if (
+              animationFrame !== null
+            ) {
+              cancelAnimationFrame(
+                animationFrame
+              );
+
+              animationFrame = null;
+            }
+
+          }
+
+        } catch (e) {
+
+          console.error(e);
+
+          error.textContent =
+            "تعذر تشغيل ملف الصوت. تأكد من وجود song.mp3.";
+
+          status.textContent =
+            "تعذر التشغيل";
+
+        }
+
+      }
+    );
+
+    /* =====================================================
+       RESTART
+    ===================================================== */
+
+    restartButton.addEventListener(
+      "click",
+      function () {
+
+        audio.currentTime = 0;
+
+        if (
+          audio.paused
+        ) {
+          currentTime.textContent =
+            "00:00";
+
+          progress.value = 0;
+
+          progress.style.setProperty(
+            "--progress",
+            "0%"
+          );
+        }
+
+      }
+    );
+
+    /* =====================================================
+       TIME UPDATE
+    ===================================================== */
 
     audio.addEventListener(
       "loadedmetadata",
-      handleLoadedMetadata
+      function () {
+
+        if (
+          Number.isFinite(
+            audio.duration
+          )
+        ) {
+
+          duration.textContent =
+            formatTime(
+              audio.duration
+            );
+
+        }
+
+      }
     );
 
     audio.addEventListener(
       "timeupdate",
-      handleTimeUpdate
+      function () {
+
+        const current =
+          audio.currentTime;
+
+        const total =
+          audio.duration;
+
+        currentTime.textContent =
+          formatTime(current);
+
+        if (
+          Number.isFinite(total) &&
+          total > 0
+        ) {
+
+          const percentage =
+            (
+              current /
+              total
+            ) * 100;
+
+          progress.value =
+            percentage;
+
+          progress.style.setProperty(
+            "--progress",
+            percentage + "%"
+          );
+
+        }
+
+      }
+    );
+
+    /* =====================================================
+       PROGRESS
+    ===================================================== */
+
+    progress.addEventListener(
+      "input",
+      function () {
+
+        const percentage =
+          Number(progress.value);
+
+        progress.style.setProperty(
+          "--progress",
+          percentage + "%"
+        );
+
+        if (
+          Number.isFinite(
+            audio.duration
+          ) &&
+          audio.duration > 0
+        ) {
+
+          audio.currentTime =
+            (
+              percentage /
+              100
+            ) *
+            audio.duration;
+
+        }
+
+      }
+    );
+
+    /* =====================================================
+       VOLUME
+    ===================================================== */
+
+    function updateVolume() {
+
+      const value =
+        Number(volume.value);
+
+      audio.volume =
+        value;
+
+      volume.style.setProperty(
+        "--volume",
+        (
+          value * 100
+        ) + "%"
+      );
+
+    }
+
+    updateVolume();
+
+    volume.addEventListener(
+      "input",
+      function () {
+
+        isMuted = false;
+
+        audio.muted = false;
+
+        muteButton.textContent =
+          "V";
+
+        volumeButton.textContent =
+          "V";
+
+        updateVolume();
+
+      }
+    );
+
+    /* =====================================================
+       MUTE
+    ===================================================== */
+
+    function toggleMute() {
+
+      isMuted =
+        !isMuted;
+
+      audio.muted =
+        isMuted;
+
+      if (isMuted) {
+
+        muteButton.textContent =
+          "×";
+
+        volumeButton.textContent =
+          "×";
+
+      } else {
+
+        muteButton.textContent =
+          "V";
+
+        volumeButton.textContent =
+          "V";
+
+      }
+
+    }
+
+    muteButton.addEventListener(
+      "click",
+      toggleMute
+    );
+
+    volumeButton.addEventListener(
+      "click",
+      toggleMute
+    );
+
+    /* =====================================================
+       AUDIO EVENTS
+    ===================================================== */
+
+    audio.addEventListener(
+      "play",
+      function () {
+
+        isPlaying = true;
+
+        record.classList.add(
+          "playing"
+        );
+
+        equalizer.classList.add(
+          "active"
+        );
+
+        playButton.textContent =
+          "❚❚";
+
+        status.textContent =
+          "يعمل الآن";
+
+      }
+    );
+
+    audio.addEventListener(
+      "pause",
+      function () {
+
+        isPlaying = false;
+
+        record.classList.remove(
+          "playing"
+        );
+
+        equalizer.classList.remove(
+          "active"
+        );
+
+        playButton.textContent =
+          "▶";
+
+        if (
+          audio.currentTime <
+          audio.duration
+        ) {
+
+          status.textContent =
+            "متوقف مؤقتاً";
+
+        }
+
+      }
     );
 
     audio.addEventListener(
       "ended",
-      handleEnded
+      function () {
+
+        isPlaying = false;
+
+        record.classList.remove(
+          "playing"
+        );
+
+        equalizer.classList.remove(
+          "active"
+        );
+
+        playButton.textContent =
+          "▶";
+
+        status.textContent =
+          "انتهت الأغنية";
+
+        progress.value = 0;
+
+        progress.style.setProperty(
+          "--progress",
+          "0%"
+        );
+
+      }
     );
 
     audio.addEventListener(
       "error",
-      handleError
+      function () {
+
+        error.textContent =
+          "لم يتم العثور على song.mp3. تأكد أن الملف موجود في نفس المجلد.";
+
+        status.textContent =
+          "ملف الصوت غير موجود";
+
+      }
     );
 
-    audio.volume = volume;
+    /* =====================================================
+       KEYBOARD
+    ===================================================== */
 
-    return () => {
-      audio.removeEventListener(
-        "loadedmetadata",
-        handleLoadedMetadata
-      );
+    document.addEventListener(
+      "keydown",
+      function (event) {
 
-      audio.removeEventListener(
-        "timeupdate",
-        handleTimeUpdate
-      );
+        if (
+          event.code ===
+          "Space"
+        ) {
 
-      audio.removeEventListener(
-        "ended",
-        handleEnded
-      );
+          const tag =
+            document.activeElement
+              ? document.activeElement.tagName
+              : "";
 
-      audio.removeEventListener(
-        "error",
-        handleError
-      );
-    };
-  }, []);
+          if (
+            tag !== "INPUT" &&
+            tag !== "BUTTON"
+          ) {
 
-  useEffect(() => {
-    const audio = audioRef.current;
+            event.preventDefault();
 
-    if (audio) {
-      audio.volume = volume;
-    }
-  }, [volume]);
+            playButton.click();
 
-  const enterMusic = () => {
-    setScreen("music");
-  };
+          }
 
-  const togglePlay = async () => {
-    const audio = audioRef.current;
+        }
 
-    if (!audio) return;
+        if (
+          event.code ===
+          "Escape"
+        ) {
 
-    try {
-      setupAnalyzer();
+          if (
+            music.classList.contains(
+              "active"
+            )
+          ) {
 
-      if (audio.paused) {
-        await audio.play();
-        setPlaying(true);
-        setError("");
-      } else {
-        audio.pause();
-        setPlaying(false);
+            backButton.click();
+
+          }
+
+        }
+
       }
-    } catch (err) {
-      console.error(err);
+    );
 
-      setError(
-        "تعذر تشغيل الصوت. اضغط تشغيل مرة أخرى."
-      );
-    }
-  };
+    /* =====================================================
+       CLEANUP
+    ===================================================== */
 
-  const handleProgress = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const audio = audioRef.current;
+    window.addEventListener(
+      "beforeunload",
+      function () {
 
-    if (!audio) return;
+        if (
+          animationFrame !== null
+        ) {
 
-    const value = Number(event.target.value);
-
-    setProgress(value);
-
-    if (
-      Number.isFinite(audio.duration) &&
-      audio.duration > 0
-    ) {
-      audio.currentTime =
-        (value / 100) * audio.duration;
-    }
-  };
-
-  const handleVolume = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const value = Number(event.target.value);
-
-    setVolume(value);
-    setMuted(false);
-
-    const audio = audioRef.current;
-
-    if (audio) {
-      audio.volume = value;
-      audio.muted = false;
-    }
-  };
-
-  const toggleMute = () => {
-    const audio = audioRef.current;
-
-    if (!audio) return;
-
-    const nextMuted = !muted;
-
-    audio.muted = nextMuted;
-    setMuted(nextMuted);
-  };
-
-  const restart = () => {
-    const audio = audioRef.current;
-
-    if (!audio) return;
-
-    audio.currentTime = 0;
-    setCurrentTime(0);
-    setProgress(0);
-  };
-
-  const goHome = () => {
-    const audio = audioRef.current;
-
-    if (audio) {
-      audio.pause();
-    }
-
-    setPlaying(false);
-    setScreen("home");
-  };
-
-  const recordScale = 1 + intensity * 0.035;
-
-  const glowOpacity =
-    0.12 + intensity * 0.35;
-
-  return (
-    <>
-      <audio
-        ref={audioRef}
-        src={AUDIO_SRC}
-        preload="metadata"
-      />
-
-      <style jsx global>{`
-        * {
-          box-sizing: border-box;
-        }
-
-        html,
-        body {
-          margin: 0;
-          padding: 0;
-          width: 100%;
-          min-height: 100%;
-          background: #020204;
-          color: #ffffff;
-          font-family:
-            Arial,
-            Helvetica,
-            sans-serif;
-        }
-
-        body {
-          overflow-x: hidden;
-        }
-
-        button,
-        input {
-          font: inherit;
-        }
-
-        button {
-          -webkit-tap-highlight-color: transparent;
-        }
-
-        .page {
-          min-height: 100vh;
-          position: relative;
-          overflow: hidden;
-          background:
-            radial-gradient(
-              circle at 50% 45%,
-              rgba(255, 255, 255, 0.045),
-              transparent 25%
-            ),
-            radial-gradient(
-              circle at 15% 85%,
-              rgba(150, 150, 150, 0.04),
-              transparent 30%
-            ),
-            #020204;
-        }
-
-        .page.music {
-          background:
-            radial-gradient(
-              circle at 50% 45%,
-              rgba(255, 255, 255, 0.09),
-              transparent 25%
-            ),
-            radial-gradient(
-              circle at 20% 80%,
-              rgba(255, 255, 255, 0.04),
-              transparent 30%
-            ),
-            #020204;
-        }
-
-        .noise {
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-          opacity: 0.045;
-          background:
-            repeating-linear-gradient(
-              0deg,
-              rgba(255, 255, 255, 0.12) 0px,
-              rgba(255, 255, 255, 0.12) 1px,
-              transparent 1px,
-              transparent 4px
-            );
-        }
-
-        .ambient {
-          position: absolute;
-          border-radius: 50%;
-          pointer-events: none;
-          filter: blur(100px);
-          opacity: 0.2;
-        }
-
-        .ambient.one {
-          width: 350px;
-          height: 350px;
-          left: -170px;
-          top: 10%;
-          background: #ffffff;
-          animation:
-            floatOne 10s ease-in-out infinite;
-        }
-
-        .ambient.two {
-          width: 300px;
-          height: 300px;
-          right: -150px;
-          bottom: 5%;
-          background: #777777;
-          animation:
-            floatTwo 12s ease-in-out infinite;
-        }
-
-        .particles {
-          position: absolute;
-          inset: 0;
-          overflow: hidden;
-          pointer-events: none;
-        }
-
-        .particle {
-          position: absolute;
-          display: block;
-          width: var(--size);
-          height: var(--size);
-          border-radius: 50%;
-          background: rgba(255, 255, 255, 0.55);
-          box-shadow:
-            0 0 8px rgba(255, 255, 255, 0.35);
-          animation:
-            particleFloat
-            var(--duration)
-            ease-in-out
-            var(--delay)
-            infinite;
-        }
-
-        .sparks {
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-          overflow: hidden;
-        }
-
-        .spark {
-          position: absolute;
-          display: block;
-          border-radius: 50%;
-          background: #ffffff;
-          box-shadow:
-            0 0 8px rgba(255,255,255,0.8),
-            0 0 18px rgba(255,255,255,0.4);
-          animation:
-            sparkFly
-            var(--duration)
-            ease-out
-            var(--delay)
-            infinite;
-        }
-
-        .home {
-          min-height: 100vh;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          position: relative;
-          z-index: 2;
-          padding: 30px 20px;
-        }
-
-        .home-content {
-          width: min(720px, 100%);
-          text-align: center;
-          direction: rtl;
-        }
-
-        .line {
-          width: 120px;
-          height: 1px;
-          margin: 0 auto 30px;
-          background: linear-gradient(
-            90deg,
-            transparent,
-            #ffffff,
-            transparent
+          cancelAnimationFrame(
+            animationFrame
           );
-          box-shadow:
-            0 0 15px rgba(255,255,255,0.5);
-        }
-
-        .label {
-          color: rgba(255,255,255,0.55);
-          letter-spacing: 8px;
-          font-size: 10px;
-          font-weight: 700;
-          margin-bottom: 25px;
-          direction: ltr;
-        }
-
-        .home-title {
-          margin: 0;
-          font-size: clamp(70px, 15vw, 150px);
-          line-height: 0.9;
-          font-weight: 1000;
-          letter-spacing: -7px;
-          text-shadow:
-            0 0 35px rgba(255,255,255,0.12);
-        }
-
-        .home-description {
-          margin: 35px auto;
-          max-width: 500px;
-          color: rgba(255,255,255,0.45);
-          line-height: 2;
-          font-size: 14px;
-        }
-
-        .enter {
-          position: relative;
-          border: 1px solid rgba(255,255,255,0.35);
-          background:
-            linear-gradient(
-              145deg,
-              rgba(255,255,255,0.12),
-              rgba(255,255,255,0.025)
-            );
-          color: #ffffff;
-          padding: 17px 48px;
-          border-radius: 999px;
-          cursor: pointer;
-          font-weight: 800;
-          font-size: 16px;
-          overflow: hidden;
-          transition:
-            transform 0.25s ease,
-            box-shadow 0.25s ease,
-            border-color 0.25s ease;
-          box-shadow:
-            0 0 25px rgba(255,255,255,0.04);
-        }
-
-        .enter::before {
-          content: "";
-          position: absolute;
-          top: 0;
-          left: -120%;
-          width: 100%;
-          height: 100%;
-          background:
-            linear-gradient(
-              90deg,
-              transparent,
-              rgba(255,255,255,0.18),
-              transparent
-            );
-          transition: left 0.5s ease;
-        }
-
-        .enter:hover {
-          transform: translateY(-4px);
-          border-color: rgba(255,255,255,0.8);
-          box-shadow:
-            0 0 35px rgba(255,255,255,0.12);
-        }
-
-        .enter:hover::before {
-          left: 120%;
-        }
-
-        .enter:active {
-          transform: scale(0.96);
-        }
-
-        .music-screen {
-          min-height: 100vh;
-          position: relative;
-          z-index: 2;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding:
-            80px
-            20px
-            45px;
-        }
-
-        .back {
-          position: absolute;
-          left: 25px;
-          top: 25px;
-          padding: 10px 17px;
-          border-radius: 999px;
-          color: rgba(255,255,255,0.7);
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.12);
-          cursor: pointer;
-          transition: 0.25s ease;
-        }
-
-        .back:hover {
-          color: #ffffff;
-          border-color: rgba(255,255,255,0.5);
-          transform: translateX(3px);
-        }
-
-        .music-title {
-          position: relative;
-          z-index: 5;
-          text-align: center;
-          direction: rtl;
-          margin-bottom: 5px;
-        }
-
-        .music-title small {
-          display: block;
-          color: rgba(255,255,255,0.4);
-          letter-spacing: 8px;
-          font-size: 9px;
-          direction: ltr;
-          margin-bottom: 13px;
-        }
-
-        .music-title h2 {
-          margin: 0;
-          font-size: clamp(38px, 8vw, 78px);
-          font-weight: 1000;
-          line-height: 0.95;
-          text-shadow:
-            0 0 35px rgba(255,255,255,0.1);
-        }
-
-        .music-title p {
-          margin: 17px 0 0;
-          color: rgba(255,255,255,0.38);
-          font-size: 13px;
-        }
-
-        .record-stage {
-          position: relative;
-          width: min(430px, 84vw);
-          aspect-ratio: 1;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin: 0 auto 20px;
-        }
-
-        .record-glow {
-          position: absolute;
-          width: 72%;
-          height: 72%;
-          border-radius: 50%;
-          background:
-            rgba(
-              255,
-              255,
-              255,
-              ${glowOpacity}
-            );
-          filter: blur(65px);
-          transition:
-            background 0.1s linear,
-            transform 0.1s linear;
-          transform:
-            scale(${1 + bass * 0.35});
-        }
-
-        .orbit {
-          position: absolute;
-          width: 98%;
-          height: 98%;
-          border-radius: 50%;
-          border: 1px solid rgba(255,255,255,0.12);
-          box-shadow:
-            0 0 50px rgba(255,255,255,0.04);
-          animation:
-            orbitPulse 2.5s ease-in-out infinite;
-        }
-
-        .orbit::before,
-        .orbit::after {
-          content: "";
-          position: absolute;
-          width: 7px;
-          height: 7px;
-          border-radius: 50%;
-          background: #ffffff;
-          box-shadow:
-            0 0 15px #ffffff;
-        }
-
-        .orbit::before {
-          left: 50%;
-          top: -4px;
-        }
-
-        .orbit::after {
-          right: 20%;
-          bottom: -4px;
-        }
-
-        .record {
-          position: relative;
-          width: 78%;
-          height: 78%;
-          border-radius: 50%;
-          background:
-            radial-gradient(
-              circle,
-              #3c3c3c 0%,
-              #161616 8%,
-              #080808 12%,
-              #171717 20%,
-              #050505 50%,
-              #121212 70%,
-              #020202 100%
-            );
-          border: 2px solid rgba(255,255,255,0.1);
-          box-shadow:
-            0 30px 80px rgba(0,0,0,0.85),
-            0 0 60px rgba(
-              255,
-              255,
-              255,
-              ${0.05 + intensity * 0.2}
-            ),
-            inset 0 0 55px rgba(255,255,255,0.025);
-          animation:
-            recordSpin 6s linear infinite;
-          animation-play-state:
-            ${playing ? "running" : "paused"};
-          transform:
-            scale(${recordScale});
-          transition:
-            transform 0.08s linear;
-        }
-
-        .record::before {
-          content: "";
-          position: absolute;
-          inset: 7%;
-          border-radius: 50%;
-          border:
-            1px solid rgba(255,255,255,0.08);
-          box-shadow:
-            inset 0 0 25px rgba(255,255,255,0.03);
-        }
-
-        .record::after {
-          content: "";
-          position: absolute;
-          inset: 15%;
-          border-radius: 50%;
-          border:
-            1px solid rgba(255,255,255,0.06);
-        }
-
-        .groove {
-          position: absolute;
-          inset: 25%;
-          border-radius: 50%;
-          border:
-            1px solid rgba(255,255,255,0.05);
-        }
-
-        .record-label {
-          position: absolute;
-          width: 30%;
-          height: 30%;
-          left: 35%;
-          top: 35%;
-          border-radius: 50%;
-          background:
-            radial-gradient(
-              circle,
-              #eeeeee,
-              #777777 50%,
-              #202020 100%
-            );
-          border:
-            2px solid rgba(255,255,255,0.16);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-direction: column;
-          z-index: 4;
-          box-shadow:
-            0 0 30px rgba(255,255,255,0.08);
-        }
-
-        .record-label strong {
-          color: #050505;
-          font-size: 14px;
-          font-weight: 1000;
-        }
-
-        .record-label span {
-          color: #111111;
-          font-size: 5px;
-          letter-spacing: 2px;
-          margin-top: 4px;
-        }
-
-        .record-hole {
-          position: absolute;
-          width: 8px;
-          height: 8px;
-          left: calc(50% - 4px);
-          top: calc(50% - 4px);
-          border-radius: 50%;
-          background: #050505;
-          z-index: 6;
-          border:
-            1px solid rgba(255,255,255,0.25);
-        }
-
-        .needle {
-          position: absolute;
-          width: 25%;
-          height: 45%;
-          right: 3%;
-          top: 6%;
-          z-index: 10;
-          transform: rotate(7deg);
-          transform-origin: 80% 0%;
-          pointer-events: none;
-        }
-
-        .needle-arm {
-          position: absolute;
-          right: 0;
-          top: 0;
-          width: 7px;
-          height: 86%;
-          border-radius: 20px;
-          background:
-            linear-gradient(
-              90deg,
-              #444444,
-              #eeeeee,
-              #555555
-            );
-        }
-
-        .needle-head {
-          position: absolute;
-          right: -5px;
-          bottom: 5%;
-          width: 18px;
-          height: 24px;
-          border-radius: 4px;
-          background: #171717;
-          border: 1px solid #777777;
-          transform: rotate(-20deg);
-        }
-
-        .needle-head::after {
-          content: "";
-          position: absolute;
-          width: 5px;
-          height: 5px;
-          left: 6px;
-          bottom: -4px;
-          border-radius: 50%;
-          background: #ffffff;
-          box-shadow:
-            0 0 8px #ffffff;
-        }
-
-        .player {
-          width: min(600px, 95vw);
-          position: relative;
-          z-index: 20;
-          padding: 22px;
-          border-radius: 24px;
-          border:
-            1px solid rgba(255,255,255,0.1);
-          background:
-            linear-gradient(
-              145deg,
-              rgba(255,255,255,0.06),
-              rgba(255,255,255,0.018)
-            );
-          backdrop-filter: blur(25px);
-          box-shadow:
-            0 30px 100px rgba(0,0,0,0.5),
-            inset 0 1px rgba(255,255,255,0.05);
-        }
-
-        .track {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          direction: rtl;
-          gap: 15px;
-          margin-bottom: 18px;
-        }
-
-        .track-info {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-
-        .track-icon {
-          width: 44px;
-          height: 44px;
-          border-radius: 13px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #ffffff;
-          background:
-            linear-gradient(
-              145deg,
-              #777777,
-              #202020
-            );
-          border:
-            1px solid rgba(255,255,255,0.12);
-        }
-
-        .track-info strong {
-          display: block;
-          font-size: 14px;
-        }
-
-        .track-info small {
-          display: block;
-          margin-top: 4px;
-          color: rgba(255,255,255,0.35);
-          font-size: 8px;
-          letter-spacing: 2px;
-          direction: ltr;
-        }
-
-        .equalizer {
-          display: flex;
-          align-items: center;
-          gap: 3px;
-          height: 30px;
-        }
-
-        .equalizer i {
-          display: block;
-          width: 3px;
-          height: 7px;
-          border-radius: 99px;
-          background: #ffffff;
-        }
-
-        .equalizer.active i {
-          animation:
-            equalizer 0.65s
-            ease-in-out infinite
-            alternate;
-        }
-
-        .equalizer i:nth-child(1) {
-          animation-delay: 0s;
-        }
-
-        .equalizer i:nth-child(2) {
-          animation-delay: 0.06s;
-        }
-
-        .equalizer i:nth-child(3) {
-          animation-delay: 0.12s;
-        }
-
-        .equalizer i:nth-child(4) {
-          animation-delay: 0.18s;
-        }
-
-        .equalizer i:nth-child(5) {
-          animation-delay: 0.24s;
-        }
-
-        .equalizer i:nth-child(6) {
-          animation-delay: 0.3s;
-        }
-
-        .equalizer i:nth-child(7) {
-          animation-delay: 0.36s;
-        }
-
-        .equalizer i:nth-child(8) {
-          animation-delay: 0.42s;
-        }
-
-        .equalizer i:nth-child(9) {
-          animation-delay: 0.48s;
-        }
-
-        .equalizer i:nth-child(10) {
-          animation-delay: 0.54s;
-        }
 
-        .equalizer i:nth-child(11) {
-          animation-delay: 0.6s;
         }
 
-        .equalizer i:nth-child(12) {
-          animation-delay: 0.66s;
-        }
-
-        .progress {
-          appearance: none;
-          -webkit-appearance: none;
-          width: 100%;
-          height: 6px;
-          border-radius: 99px;
-          outline: none;
-          cursor: pointer;
-          background:
-            linear-gradient(
-              90deg,
-              #ffffff ${progress}%,
-              rgba(255,255,255,0.1) ${progress}%
-            );
-        }
-
-        .progress::-webkit-slider-thumb {
-          appearance: none;
-          -webkit-appearance: none;
-          width: 15px;
-          height: 15px;
-          border-radius: 50%;
-          background: #ffffff;
-          border: 3px solid #444444;
-          box-shadow:
-            0 0 12px rgba(255,255,255,0.5);
-        }
-
-        .progress::-moz-range-thumb {
-          width: 15px;
-          height: 15px;
-          border-radius: 50%;
-          background: #ffffff;
-          border: 3px solid #444444;
-        }
-
-        .time {
-          display: flex;
-          justify-content: space-between;
-          direction: ltr;
-          color: rgba(255,255,255,0.35);
-          font-size: 10px;
-          margin-top: 8px;
-        }
-
-        .controls {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 18px;
-          margin-top: 18px;
-        }
-
-        .control {
-          width: 44px;
-          height: 44px;
-          border-radius: 50%;
-          color: #ffffff;
-          background: rgba(255,255,255,0.04);
-          border:
-            1px solid rgba(255,255,255,0.12);
-          cursor: pointer;
-          transition: 0.2s ease;
-        }
-
-        .control:hover {
-          transform: translateY(-2px);
-          border-color: rgba(255,255,255,0.45);
-          background: rgba(255,255,255,0.08);
-        }
-
-        .play {
-          width: 68px;
-          height: 68px;
-          border: none;
-          border-radius: 50%;
-          color: #050505;
-          background:
-            radial-gradient(
-              circle at 35% 30%,
-              #ffffff,
-              #aaaaaa 55%,
-              #555555
-            );
-          box-shadow:
-            0 0 25px rgba(255,255,255,0.25),
-            0 0 70px rgba(255,255,255,0.08);
-          cursor: pointer;
-          font-size: 22px;
-          padding-left: 3px;
-          transition:
-            transform 0.2s ease,
-            box-shadow 0.2s ease;
-        }
-
-        .play:hover {
-          transform: scale(1.07);
-          box-shadow:
-            0 0 40px rgba(255,255,255,0.4),
-            0 0 90px rgba(255,255,255,0.1);
-        }
-
-        .play:active {
-          transform: scale(0.94);
-        }
-
-        .bottom {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          direction: ltr;
-          margin-top: 18px;
-        }
-
-        .volume-box {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-
-        .volume-button {
-          border: 0;
-          background: transparent;
-          color: #ffffff;
-          cursor: pointer;
-          font-size: 15px;
-        }
-
-        .volume {
-          width: 110px;
-          height: 4px;
-          appearance: none;
-          -webkit-appearance: none;
-          border-radius: 99px;
-          background:
-            linear-gradient(
-              90deg,
-              #ffffff ${volume * 100}%,
-              rgba(255,255,255,0.1) ${volume * 100}%
-            );
-        }
-
-        .volume::-webkit-slider-thumb {
-          appearance: none;
-          width: 12px;
-          height: 12px;
-          border-radius: 50%;
-          background: #ffffff;
-          cursor: pointer;
-        }
-
-        .volume::-moz-range-thumb {
-          width: 12px;
-          height: 12px;
-          border-radius: 50%;
-          background: #ffffff;
-          cursor: pointer;
-        }
-
-        .state {
-          direction: rtl;
-          color: rgba(255,255,255,0.35);
-          font-size: 10px;
-        }
-
-        .error {
-          direction: rtl;
-          text-align: center;
-          margin-top: 13px;
-          color: rgba(255,255,255,0.65);
-          font-size: 11px;
-        }
-
-        @keyframes recordSpin {
-          from {
-            transform: rotate(0deg)
-              scale(${recordScale});
-          }
-
-          to {
-            transform: rotate(360deg)
-              scale(${recordScale});
-          }
-        }
-
-        @keyframes orbitPulse {
-          0%,
-          100% {
-            transform: scale(0.98);
-            opacity: 0.4;
-          }
-
-          50% {
-            transform: scale(1.02);
-            opacity: 0.8;
-          }
-        }
-
-        @keyframes equalizer {
-          from {
-            transform: scaleY(0.3);
-          }
-
-          to {
-            transform: scaleY(2.5);
-          }
-        }
-
-        @keyframes particleFloat {
-          0% {
-            transform:
-              translate3d(0, 30px, 0)
-              scale(0.5);
-            opacity: 0;
-          }
-
-          20% {
-            opacity: 0.8;
-          }
-
-          50% {
-            transform:
-              translate3d(25px, -30px, 0)
-              scale(1);
-          }
-
-          80% {
-            opacity: 0.3;
-          }
-
-          100% {
-            transform:
-              translate3d(-20px, -120px, 0)
-              scale(0.4);
-            opacity: 0;
-          }
-        }
+        if (
+          audioContext &&
+          audioContext.state !==
+            "closed"
+        ) {
 
-        @keyframes sparkFly {
-          0% {
-            transform:
-              translate3d(0, 0, 0)
-              scale(0);
-            opacity: 0;
-          }
+          audioContext.close();
 
-          20% {
-            opacity: 1;
-          }
-
-          100% {
-            transform:
-              translate3d(
-                40px,
-                -130px,
-                0
-              )
-              scale(0);
-            opacity: 0;
-          }
-        }
-
-        @keyframes floatOne {
-          0%,
-          100% {
-            transform: translate(0, 0);
-          }
-
-          50% {
-            transform: translate(90px, -50px);
-          }
-        }
-
-        @keyframes floatTwo {
-          0%,
-          100% {
-            transform: translate(0, 0);
-          }
-
-          50% {
-            transform: translate(-90px, 50px);
-          }
-        }
-
-        @media (max-width: 600px) {
-          .home-title {
-            letter-spacing: -4px;
-          }
-
-          .music-screen {
-            padding:
-              75px
-              12px
-              35px;
-          }
-
-          .record-stage {
-            width: min(370px, 92vw);
-          }
-
-          .player {
-            padding: 17px;
-            border-radius: 20px;
-          }
-
-          .equalizer {
-            display: none;
-          }
-
-          .bottom {
-            flex-direction: column;
-            gap: 15px;
-          }
-
-          .volume-box {
-            width: 100%;
-            justify-content: center;
-          }
-
-          .volume {
-            width: 140px;
-          }
-
-          .back {
-            left: 15px;
-            top: 15px;
-          }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          *,
-          *::before,
-          *::after {
-            animation-duration: 0.01ms !important;
-            animation-iteration-count: 1 !important;
-          }
         }
-      `}</style>
-
-      <main
-        className={`page ${
-          screen === "music" ? "music" : ""
-        }`}
-      >
-        <div className="noise" />
-
-        <div className="ambient one" />
-        <div className="ambient two" />
-
-        <div className="particles">
-          {particles.map((particle) => (
-            <span
-              key={particle.id}
-              className="particle"
-              style={
-                {
-                  left: `${particle.x}%`,
-                  top: `${particle.y}%`,
-                  "--size": `${particle.size}px`,
-                  "--delay": `${particle.delay}s`,
-                  "--duration": `${particle.duration}s`,
-                } as React.CSSProperties
-              }
-            />
-          ))}
-        </div>
-
-        <div className="sparks">
-          {sparks.map((spark) => (
-            <span
-              key={spark.id}
-              className="spark"
-              style={
-                {
-                  left: `${spark.x}%`,
-                  top: `${spark.y}%`,
-                  width: `${spark.size}px`,
-                  height: `${spark.size}px`,
-                  "--delay": `${spark.delay}s`,
-                  "--duration": `${spark.duration}s`,
-                } as React.CSSProperties
-              }
-            />
-          ))}
-        </div>
-
-        {screen === "home" && (
-          <section className="home">
-            <div className="home-content">
-              <div className="line" />
-
-              <div className="label">
-                HAMMAM
-              </div>
-
-              <h1 className="home-title">
-                همام
-              </h1>
-
-              <p className="home-description">
-                تجربة موسيقية تفاعلية.
-                <br />
-                اضغط للانتقال إلى المشغل.
-              </p>
-
-              <button
-                className="enter"
-                onClick={enterMusic}
-              >
-                اضغط هنا
-              </button>
-            </div>
-          </section>
-        )}
-
-        {screen === "music" && (
-          <section className="music-screen">
-            <button
-              className="back"
-              onClick={goHome}
-            >
-              رجوع
-            </button>
-
-            <div className="music-title">
-              <small>
-                HAMMAM RECORD
-              </small>
-
-              <h2>
-                همام
-              </h2>
-
-              <p>
-                شغّل الموسيقى وحرك الأسطوانة.
-              </p>
-            </div>
-
-            <div className="record-stage">
-              <div className="record-glow" />
-
-              <div className="orbit" />
-
-              <div className="record">
-                <div className="groove" />
-
-                <div
-                  className="groove"
-                  style={{
-                    inset: "31%",
-                  }}
-                />
-
-                <div
-                  className="groove"
-                  style={{
-                    inset: "37%",
-                  }}
-                />
-
-                <div className="record-label">
-                  <strong>
-                    همام
-                  </strong>
-
-                  <span>
-                    HAMMAM
-                  </span>
-                </div>
-
-                <div className="record-hole" />
-              </div>
-
-              <div className="needle">
-                <div className="needle-arm" />
-                <div className="needle-head" />
-              </div>
-            </div>
-
-            <div className="player">
-              <div className="track">
-                <div className="track-info">
-                  <div className="track-icon">
-                    H
-                  </div>
-
-                  <div>
-                    <strong>
-                      همام
-                    </strong>
-
-                    <small>
-                      NOW PLAYING
-                    </small>
-                  </div>
-                </div>
-
-                <div
-                  className={`equalizer ${
-                    playing ? "active" : ""
-                  }`}
-                >
-                  {Array.from(
-                    { length: 12 },
-                    (_, index) => (
-                      <i key={index} />
-                    )
-                  )}
-                </div>
-              </div>
-
-              <input
-                className="progress"
-                type="range"
-                min="0"
-                max="100"
-                step="0.01"
-                value={progress}
-                onChange={handleProgress}
-              />
-
-              <div className="time">
-                <span>
-                  {formatTime(currentTime)}
-                </span>
-
-                <span>
-                  {formatTime(duration)}
-                </span>
-              </div>
-
-              <div className="controls">
-                <button
-                  className="control"
-                  onClick={restart}
-                  aria-label="إعادة التشغيل"
-                >
-                  ↺
-                </button>
-
-                <button
-                  className="play"
-                  onClick={togglePlay}
-                  aria-label={
-                    playing
-                      ? "إيقاف"
-                      : "تشغيل"
-                  }
-                >
-                  {playing ? "❚❚" : "▶"}
-                </button>
-
-                <button
-                  className="control"
-                  onClick={toggleMute}
-                  aria-label="كتم الصوت"
-                >
-                  {muted ? "×" : "V"}
-                </button>
-              </div>
-
-              <div className="bottom">
-                <div className="volume-box">
-                  <button
-                    className="volume-button"
-                    onClick={toggleMute}
-                  >
-                    {muted ? "M" : "V"}
-                  </button>
-
-                  <input
-                    className="volume"
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.01"
-                    value={
-                      muted ? 0 : volume
-                    }
-                    onChange={
-                      handleVolume
-                    }
-                  />
-                </div>
 
-                <div className="state">
-                  {playing
-                    ? "يعمل الآن"
-                    : "جاهز للتشغيل"}
-                </div>
-              </div>
+      }
+    );
+  </script>
 
-              {!loaded && error && (
-                <div className="error">
-                  {error}
-                </div>
-              )}
-            </div>
-          </section>
-        )}
-      </main>
-    </>
-  );
-}
+</body>
+</html>
